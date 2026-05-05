@@ -122,16 +122,16 @@
             <a href="{{ route('messages.index') }}"
                 class="hover:text-dark-text transition-colors {{ request()->routeIs('messages.*') ? 'text-white' : '' }}">
                 MESSAGES
-                @if(auth()->user()?->unread_messages_count > 0)
-                    <span class="ml-1 bg-red-900 text-red-300 border border-red-700 text-[9px] px-1.5 py-0.5 rounded-sm">
-                        {{ auth()->user()->unread_messages_count }}
-                    </span>
+                @auth
+                    <a href="{{ route('dashboard') }}"
+                        class="hover:text-dark-text transition-colors {{ request()->routeIs('dashboard') ? 'text-white' : '' }}">DASHBOARD</a>
+                @endauth
+                @if(auth()->user()?->role === 'admin')
+                    <a href="{{ route('admin.users') }}"
+                        class="hover:text-dark-text transition-colors {{ request()->routeIs('admin.*') ? 'text-white' : '' }}">ADMIN</a>
                 @endif
             </a>
-            @if(auth()->user()?->role === 'admin')
-                <a href="{{ route('admin.users') }}"
-                    class="hover:text-dark-text transition-colors {{ request()->routeIs('admin.*') ? 'text-white' : '' }}">ADMIN</a>
-            @endif
+
         </div>
 
         {{-- Right side --}}
