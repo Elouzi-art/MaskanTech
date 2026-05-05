@@ -1,5 +1,5 @@
 <?php
-
+// database/migrations/2024_01_01_000002_create_properties_table.php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // l'agent
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description');
@@ -24,14 +24,18 @@ return new class extends Migration
             $table->string('city');
             $table->string('postal_code', 10)->nullable();
             $table->year('year_built')->nullable();
-            $table->enum('status', ['available', 'sold', 'rented', 'under_construction'])->default('available');
+            // ✅ LOCATION UNIQUEMENT — sold et under_construction retirés
+            $table->enum('status', ['available', 'rented'])->default('available');
             $table->boolean('is_featured')->default(false);
+            // ✅ target_audience directement dans la migration principale
+            $table->enum('target_audience', ['all', 'student', 'professional'])->default('all');
             $table->unsignedInteger('views_count')->default(0);
-            $table->string('video_url')->nullable(); // lien YouTube/Vimeo
+            $table->string('video_url')->nullable();
             $table->timestamps();
 
             $table->index(['status', 'type', 'city']);
             $table->index('is_featured');
+            $table->index('target_audience');
         });
     }
 

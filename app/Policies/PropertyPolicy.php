@@ -1,5 +1,5 @@
 <?php
-
+// app/Policies/PropertyPolicy.php
 namespace App\Policies;
 
 use App\Models\Property;
@@ -7,34 +7,21 @@ use App\Models\User;
 
 class PropertyPolicy
 {
-    /** Admins peuvent tout faire */
-    public function before(User $user): ?bool
-    {
-        if ($user->isAdmin()) return true;
-        return null;
-    }
-
-    /** Agents ET propriétaires peuvent créer des annonces */
+    // ✅ Admins, agents ET owners peuvent publier des annonces
     public function create(User $user): bool
     {
-        return $user->isAgent() || $user->isOwner();
+        return in_array($user->role, ['admin', 'agent', 'owner']);
     }
 
-    /** L'agent/propriétaire auteur peut modifier */
+    // Seul l'auteur ou l'admin peut modifier
     public function update(User $user, Property $property): bool
     {
-        return ($user->isAgent() || $user->isOwner()) && $property->user_id === $user->id;
+        return $user->role === 'admin' || $property->user_id === $user->id;
     }
 
-    /** Même règle pour la suppression */
+    // Seul l'auteur ou l'admin peut supprimer
     public function delete(User $user, Property $property): bool
     {
-        return ($user->isAgent() || $user->isOwner()) && $property->user_id === $user->id;
-    }
-
-    /** Tout le monde peut voir */
-    public function view(?User $user, Property $property): bool
-    {
-        return true;
+        return $user->role === 'admin' || $property->user_id === $user->id;
     }
 }

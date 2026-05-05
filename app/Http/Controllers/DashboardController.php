@@ -1,14 +1,13 @@
 <?php
-
+// app/Http/Controllers/DashboardController.php
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use App\Models\Favorite;       // ✅ import manquant
-use App\Models\Message;        // ✅ import manquant
+use App\Models\Message;
 use App\Models\Property;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -17,11 +16,9 @@ class DashboardController extends Controller
         return match (Auth::user()->role) {
             'admin'  => $this->admin(),
             'agent'  => $this->agent(),
-            default  => $this->client(),
+            default  => $this->client(), // client, student, owner
         };
     }
-
-    // ── ADMIN ─────────────────────────────────────────────────────────────
 
     private function admin()
     {
@@ -29,6 +26,7 @@ class DashboardController extends Controller
             'total_properties'     => Property::count(),
             'total_users'          => User::count(),
             'rented_properties'    => Property::where('status', 'rented')->count(),
+            'available_properties' => Property::where('status', 'available')->count(),
             'appointments_month'   => Appointment::whereMonth('created_at', now()->month)->count(),
             'pending_appointments' => Appointment::where('status', 'pending')->count(),
             'unread_messages'      => Message::where('is_read', false)->count(),
@@ -39,7 +37,7 @@ class DashboardController extends Controller
         ];
 
         $months      = collect(range(11, 0))->map(fn($m) => now()->subMonths($m));
-        $chartLabels = $months->map(fn($d) => $d->translatedFormat('M'))->toArray();
+        $chartLabels = $months->map(fn($d) => $d->format('M'))->toArray();
         $chartData   = $months->map(fn($d) =>
             Property::whereYear('created_at', $d->year)
                     ->whereMonth('created_at', $d->month)
@@ -53,7 +51,7 @@ class DashboardController extends Controller
             ->map(fn($p) => (object)[
                 'type'   => $p->status === 'rented' ? 'loué' : 'nouveau',
                 'title'  => $p->title,
-                'sub'    => $p->city . ' — ' . $p->user->name,
+                'sub'    => $p->city . ' — ' . ($p->user->name ?? '?'),
                 'date'   => $p->created_at->diffForHumans(),
                 'status' => $p->status,
             ]);
@@ -66,8 +64,6 @@ class DashboardController extends Controller
         ));
     }
 
-    // ── AGENT ─────────────────────────────────────────────────────────────
-
     private function agent()
     {
         $user = Auth::user();
@@ -77,7 +73,6 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
-        // ✅ Fix : pas de scope "upcoming" — on utilise whereDate
         $upcomingAppointments = Appointment::where('agent_id', $user->id)
             ->whereDate('date', '>=', now()->toDateString())
             ->where('status', 'confirmed')
@@ -91,14 +86,15 @@ class DashboardController extends Controller
             'total_views'     => $user->properties()->sum('views_count'),
             'appointments'    => Appointment::where('agent_id', $user->id)
                                     ->whereMonth('created_at', now()->month)->count(),
-            'favorites_count' => Favorite::whereIn('property_id', $user->properties()->pluck('id'))->count(),
+            // ✅ Fix : on passe par DB::table directement sans modèle Favorite
+            'favorites_count' => DB::table('favorites')
+                                    ->whereIn('property_id', $user->properties()->pluck('id'))
+                                    ->count(),
             'unread_messages' => $user->receivedMessages()->where('is_read', false)->count(),
         ];
 
         return view('dashboard.agent', compact('myProperties', 'upcomingAppointments', 'stats'));
     }
-
-    // ── CLIENT / STUDENT / OWNER ──────────────────────────────────────────
 
     private function client()
     {
