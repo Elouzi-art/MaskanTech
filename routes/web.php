@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 
+
 // ── PUBLIQUES ────────────────────────────────────────────────────────────────
 Route::get('/', fn() => redirect()->route('properties.index'))->name('home');
 Route::get('/biens', [PropertyController::class, 'index'])->name('properties.index');
