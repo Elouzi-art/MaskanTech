@@ -13,17 +13,33 @@ class Property extends Model
     protected $fillable = [
         'user_id', 'title', 'slug', 'description', 'price', 'area',
         'type', 'rooms', 'bedrooms', 'bathrooms', 'address', 'city',
-        'postal_code', 'year_built', 'status', 'is_featured', 'video_url',
+        'postal_code', 'year_built', 'status', 'is_featured',
+        'video_url', 'target_audience',
+        // 'views_count' géré par increment(), pas besoin dans fillable
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'price'       => 'decimal:2',
-            'area'        => 'decimal:2',
-            'is_featured' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'price'       => 'decimal:2',
+        'area'        => 'decimal:2',
+        'is_featured' => 'boolean',
+    ];
+
+    /**
+     * Statuts disponibles — LOCATION UNIQUEMENT (pas de vente).
+     */
+    const STATUSES = [
+        'available' => 'Disponible',
+        'rented'    => 'Loué',
+    ];
+
+    /**
+     * Audiences cibles pour une annonce.
+     */
+    const AUDIENCES = [
+        'all'          => 'Tout le monde',
+        'student'      => 'Étudiants uniquement',
+        'professional' => 'Professionnels uniquement',
+    ];
 
     // ── Slug auto ─────────────────────────────────────────────────────────
 
@@ -38,44 +54,38 @@ class Property extends Model
 
     public static function uniqueSlug(string $title): string
     {
-        $slug = Str::slug($title);
+        $slug  = Str::slug($title);
         $count = static::where('slug', 'like', "$slug%")->count();
         return $count ? "$slug-$count" : $slug;
     }
 
     // ── Relations ─────────────────────────────────────────────────────────
 
-    /** Agent propriétaire du bien */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /** Toutes les images */
     public function images()
     {
         return $this->hasMany(PropertyImage::class)->orderBy('order_position');
     }
 
-    /** Image principale */
     public function primaryImage()
     {
         return $this->hasOne(PropertyImage::class)->where('is_primary', true)->orderBy('order_position');
     }
 
-    /** Caractéristiques (many-to-many) */
     public function features()
     {
         return $this->belongsToMany(PropertyFeature::class, 'property_feature_property');
     }
 
-    /** Utilisateurs ayant mis en favori */
     public function favoritedBy()
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
 
-    /** Rendez-vous liés à ce bien */
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
@@ -91,6 +101,24 @@ class Property extends Model
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope pour filtrer selon le rôle/audience de l'utilisateur connecté.
+     * Un étudiant ne voit que les annonces "all" ou "student".
+     */
+    public function scopeForUser($query, ?User $user)
+    {
+        if (! $user || $user->isAdmin() || $user->isAgent() || $user->isOwner()) {
+            return $query; // tout voir
+        }
+
+        if ($user->isStudent()) {
+            return $query->whereIn('target_audience', ['all', 'student']);
+        }
+
+        // client professionnel
+        return $query->whereIn('target_audience', ['all', 'professional']);
     }
 
     public function scopeFilter($query, array $filters)
@@ -109,6 +137,7 @@ class Property extends Model
         $query->when($filters['price_min'] ?? null, fn($q, $v) => $q->where('price', '>=', $v));
         $query->when($filters['price_max'] ?? null, fn($q, $v) => $q->where('price', '<=', $v));
         $query->when($filters['bedrooms']  ?? null, fn($q, $v) => $q->where('bedrooms', '>=', $v));
+        $query->when($filters['audience']  ?? null, fn($q, $v) => $q->where('target_audience', $v));
 
         $sort = $filters['sort'] ?? 'latest';
         match ($sort) {
@@ -123,11 +152,30 @@ class Property extends Model
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    /** Vérifie si un utilisateur donné a mis ce bien en favori */
+    /**
+     * ✅ Fix N+1 : utilise la relation déjà chargée si disponible
+     * au lieu de faire une requête SQL par propriété.
+     */
     public function isFavoritedBy(?User $user): bool
     {
         if (! $user) return false;
+
+        // Si la relation favoritedBy est déjà chargée (eager load), on l'utilise
+        if ($this->relationLoaded('favoritedBy')) {
+            return $this->favoritedBy->contains('id', $user->id);
+        }
+
         return $this->favoritedBy()->where('user_id', $user->id)->exists();
+    }
+
+    public function getAudienceLabelAttribute(): string
+    {
+        return self::AUDIENCES[$this->target_audience ?? 'all'] ?? 'Tout le monde';
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::STATUSES[$this->status ?? 'available'] ?? ucfirst($this->status);
     }
 
     public function getRouteKeyName(): string

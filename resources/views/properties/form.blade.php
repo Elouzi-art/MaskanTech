@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', isset($property) ? 'Modifier le bien' : 'Nouveau bien')
+@section('title', isset($property) ? 'Modifier l\'annonce' : 'Nouvelle annonce')
 
 @section('content')
 <div class="p-4 max-w-3xl mx-auto">
 
     <div class="flex items-center gap-2 text-[10px] text-dark-muted tracking-wider mb-4">
-        <a href="{{ route('properties.index') }}" class="hover:text-dark-text transition-colors">BIENS</a>
+        <a href="{{ route('properties.index') }}" class="hover:text-dark-text transition-colors">LOGEMENTS</a>
         <span class="text-dark-dim">/</span>
-        <span class="text-dark-text">{{ isset($property) ? 'MODIFIER' : 'NOUVEAU BIEN' }}</span>
+        <span class="text-dark-text">{{ isset($property) ? 'MODIFIER' : 'NOUVELLE ANNONCE' }}</span>
     </div>
 
     <form method="POST"
@@ -41,16 +41,28 @@
                 <div>
                     <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Statut *</label>
                     <select name="status" required class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
-                        @foreach(['available' => 'Disponible', 'sold' => 'Vendu', 'rented' => 'Loué', 'under_construction' => 'En construction'] as $val => $lbl)
-                        <option value="{{ $val }}" {{ old('status', $property->status ?? 'available') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
-                        @endforeach
+                        {{-- Location uniquement — pas de vente --}}
+                        <option value="available" {{ old('status', $property->status ?? 'available') === 'available' ? 'selected' : '' }}>Disponible à la location</option>
+                        <option value="rented"    {{ old('status', $property->status ?? '') === 'rented'    ? 'selected' : '' }}>Loué</option>
                     </select>
                 </div>
 
+                {{-- Audience cible --}}
+                <div class="col-span-2">
+                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Audience cible *</label>
+                    <select name="target_audience" required class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                        @foreach(\App\Models\Property::AUDIENCES as $val => $lbl)
+                        <option value="{{ $val }}" {{ old('target_audience', $property->target_audience ?? 'all') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-[10px] text-dark-dim mt-1">Définit qui peut voir cette annonce : étudiants, professionnels, ou tout le monde.</p>
+                </div>
+
                 <div>
-                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Prix (MAD) *</label>
+                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Loyer mensuel (MAD) *</label>
                     <input type="number" name="price" value="{{ old('price', $property->price ?? '') }}" required min="0"
                            class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                    @error('price') <p class="text-red-400 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -84,41 +96,37 @@
                 </div>
 
                 <div class="col-span-2">
-                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Description *</label>
-                    <textarea name="description" rows="4" required
+                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Description</label>
+                    <textarea name="description" rows="4"
                               class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono resize-none">{{ old('description', $property->description ?? '') }}</textarea>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Vidéo (YouTube/Vimeo)</label>
-                    <input type="url" name="video_url" value="{{ old('video_url', $property->video_url ?? '') }}"
-                           placeholder="https://youtube.com/..."
-                           class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm placeholder-dark-dim focus:outline-none focus:border-indigo-700 font-mono">
+                    <label class="flex items-center gap-2 text-[10px] text-dark-muted tracking-wider cursor-pointer">
+                        <input type="checkbox" name="is_featured" value="1"
+                               {{ old('is_featured', $property->is_featured ?? false) ? 'checked' : '' }}
+                               class="accent-indigo-500">
+                        Mettre en avant
+                    </label>
                 </div>
-
-                <div class="flex items-center gap-2 self-end pb-2">
-                    <input type="checkbox" name="is_featured" id="is_featured" value="1"
-                           {{ old('is_featured', $property->is_featured ?? false) ? 'checked' : '' }}
-                           class="accent-indigo-500">
-                    <label for="is_featured" class="text-xs text-dark-muted cursor-pointer">Mettre en vedette</label>
-                </div>
-
             </div>
         </div>
 
-        {{-- Section: Adresse --}}
+        {{-- Section: Localisation --}}
         <div class="bg-dark-card border border-dark-border rounded-sm p-4">
             <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-4">Localisation</div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="col-span-2">
                     <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Adresse *</label>
                     <input type="text" name="address" value="{{ old('address', $property->address ?? '') }}" required
-                           class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                           class="w-full bg-dark-card3 border @error('address') border-red-700 @else border-dark-border @enderror text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                    @error('address') <p class="text-red-400 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Ville *</label>
                     <input type="text" name="city" value="{{ old('city', $property->city ?? '') }}" required
-                           class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                           class="w-full bg-dark-card3 border @error('city') border-red-700 @else border-dark-border @enderror text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
+                    @error('city') <p class="text-red-400 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-[10px] text-dark-muted tracking-wider mb-1">Code postal</label>
@@ -128,69 +136,58 @@
             </div>
         </div>
 
-        {{-- Section: Photos --}}
+        {{-- Section: Caractéristiques --}}
+        @if(isset($features) && $features->count())
         <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-            <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-4">Photos</div>
-            <input type="file" name="images[]" multiple accept="image/*"
-                   class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono file:mr-3 file:text-[10px] file:bg-dark-card file:border file:border-dark-border file:text-dark-muted file:rounded-sm file:px-2 file:py-1 file:font-mono">
-            <p class="text-[10px] text-dark-dim mt-1.5">Formats acceptés : JPG, PNG, WEBP — Max 5MB par image</p>
-
-            @isset($property)
-            @if($property->images->count() > 0)
-            <div class="flex flex-wrap gap-2 mt-3">
-                @foreach($property->images as $img)
-                <div class="relative">
-                    <img src="{{ Storage::url($img->image_path) }}" class="w-20 h-14 object-cover rounded-sm border border-dark-border">
-                    <button type="button" onclick="deleteImage({{ $img->id }}, this)"
-                            class="absolute -top-1 -right-1 w-4 h-4 bg-red-900 border border-red-700 text-red-300 rounded-sm text-[9px] flex items-center justify-center hover:bg-red-800">
-                        ✕
-                    </button>
-                </div>
-                @endforeach
-            </div>
-            @endif
-            @endisset
-        </div>
-
-        {{-- Section: Équipements --}}
-        <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-            <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-4">Équipements</div>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-4">Équipements & Caractéristiques</div>
+            <div class="grid grid-cols-2 gap-2">
                 @foreach($features as $feature)
-                <label class="flex items-center gap-2 text-xs text-dark-muted cursor-pointer hover:text-dark-text transition-colors">
+                <label class="flex items-center gap-2 text-[10px] text-dark-muted tracking-wider cursor-pointer hover:text-dark-text transition-colors">
                     <input type="checkbox" name="features[]" value="{{ $feature->id }}"
-                           {{ (isset($property) && $property->features->contains($feature->id)) || in_array($feature->id, old('features', [])) ? 'checked' : '' }}
+                           {{ in_array($feature->id, old('features', $property?->features?->pluck('id')?->toArray() ?? [])) ? 'checked' : '' }}
                            class="accent-indigo-500">
-                    {{ ucfirst($feature->name) }}
+                    {{ $feature->name }}
                 </label>
                 @endforeach
             </div>
         </div>
+        @endif
 
-        {{-- Submit --}}
-        <div class="flex gap-3">
-            <button type="submit"
-                    class="flex-1 text-xs bg-indigo-950 border border-indigo-700 text-indigo-300 hover:bg-indigo-900 py-2.5 rounded-sm transition-colors tracking-widest font-mono">
-                {{ isset($property) ? 'ENREGISTRER LES MODIFICATIONS' : 'PUBLIER LE BIEN' }}
-            </button>
-            <a href="{{ route('properties.index') }}"
-               class="text-xs border border-dark-border text-dark-muted hover:text-dark-text px-6 py-2.5 rounded-sm transition-colors tracking-wider">
-                Annuler
-            </a>
+        {{-- Section: Images --}}
+        <div class="bg-dark-card border border-dark-border rounded-sm p-4">
+            <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-4">Photos du logement</div>
+
+            @if(isset($property) && $property->images->count())
+            <div class="flex gap-2 flex-wrap mb-3">
+                @foreach($property->images as $img)
+                <div class="relative">
+                    <img src="{{ Storage::url($img->image_path) }}" class="w-16 h-16 object-cover rounded-sm border border-dark-border">
+                    @if($img->is_primary)
+                        <span class="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-indigo-900 text-indigo-300 py-0.5">PRINCIPALE</span>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            <label class="block text-[10px] text-dark-muted tracking-wider mb-1">
+                {{ isset($property) ? 'Ajouter des photos' : 'Photos (plusieurs possibles)' }}
+            </label>
+            <input type="file" name="images[]" multiple accept="image/*"
+                   class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm font-mono file:bg-dark-card2 file:border-0 file:text-dark-muted file:text-xs file:mr-2 file:px-2 file:py-1">
         </div>
 
+        {{-- Actions --}}
+        <div class="flex gap-3 justify-end">
+            <a href="{{ route('properties.index') }}"
+               class="text-xs text-dark-muted border border-dark-border px-4 py-2 rounded-sm hover:border-dark-border2 hover:text-dark-text transition-colors tracking-wider font-mono">
+                ANNULER
+            </a>
+            <button type="submit"
+                    class="text-xs border border-indigo-700 text-indigo-400 hover:bg-indigo-950 px-4 py-2 rounded-sm transition-colors tracking-wider font-mono">
+                {{ isset($property) ? 'METTRE À JOUR' : 'PUBLIER L\'ANNONCE' }}
+            </button>
+        </div>
     </form>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-function deleteImage(id, btn) {
-    if (!confirm('Supprimer cette image ?')) return;
-    fetch(`/properties/images/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-    }).then(r => r.ok ? btn.parentElement.remove() : alert('Erreur'));
-}
-</script>
-@endpush

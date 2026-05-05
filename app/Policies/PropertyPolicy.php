@@ -14,22 +14,22 @@ class PropertyPolicy
         return null;
     }
 
-    /** Seuls agents peuvent créer */
+    /** Agents ET propriétaires peuvent créer des annonces */
     public function create(User $user): bool
     {
-        return $user->isAgent();
+        return $user->isAgent() || $user->isOwner();
     }
 
-    /** L'agent auteur ou un admin peut modifier */
+    /** L'agent/propriétaire auteur peut modifier */
     public function update(User $user, Property $property): bool
     {
-        return $user->isAgent() && $property->user_id === $user->id;
+        return ($user->isAgent() || $user->isOwner()) && $property->user_id === $user->id;
     }
 
     /** Même règle pour la suppression */
     public function delete(User $user, Property $property): bool
     {
-        return $user->isAgent() && $property->user_id === $user->id;
+        return ($user->isAgent() || $user->isOwner()) && $property->user_id === $user->id;
     }
 
     /** Tout le monde peut voir */

@@ -26,25 +26,52 @@ class User extends Authenticatable
 
     // ── Helpers de rôle ───────────────────────────────────────────────────
 
-    public function isAdmin(): bool  { return $this->role === 'admin'; }
-    public function isAgent(): bool  { return $this->role === 'agent'; }
-    public function isClient(): bool { return $this->role === 'client'; }
+    public function isAdmin(): bool   { return $this->role === 'admin'; }
+    public function isAgent(): bool   { return $this->role === 'agent'; }
+    public function isClient(): bool  { return $this->role === 'client'; }
+    public function isStudent(): bool { return $this->role === 'student'; }
+    /** Un propriétaire peut aussi louer (accès favoris + RDV comme client) */
+    public function isOwner(): bool   { return $this->role === 'owner'; }
+
+    /**
+     * Vrai pour tous les rôles qui peuvent consulter/réserver des logements.
+     * owner, client, student peuvent tous prendre des RDV et mettre en favoris.
+     */
+    public function canRent(): bool
+    {
+        return in_array($this->role, ['client', 'student', 'owner']);
+    }
+
+    /**
+     * Libellé lisible du rôle.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'Administrateur',
+            'agent' => 'Agent',
+            'client' => 'Locataire',
+            'student' => 'Étudiant',
+            'owner' => 'Propriétaire',
+            default => ucfirst($this->role),
+        };
+    }
 
     // ── Relations ─────────────────────────────────────────────────────────
 
-    /** Biens publiés par cet agent */
+    /** Biens publiés par cet agent/propriétaire */
     public function properties()
     {
         return $this->hasMany(Property::class);
     }
 
-    /** Favoris du client */
+    /** Favoris (accessible à client, student, owner) */
     public function favorites()
     {
         return $this->belongsToMany(Property::class, 'favorites')->withTimestamps();
     }
 
-    /** Rendez-vous en tant que client */
+    /** Rendez-vous en tant que locataire */
     public function appointmentsAsClient()
     {
         return $this->hasMany(Appointment::class, 'client_id');
@@ -74,9 +101,8 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
-    // ── Accesseurs utiles ─────────────────────────────────────────────────
+    // ── Accesseurs ────────────────────────────────────────────────────────
 
-    /** Nombre de messages non lus — utilisé dans la navbar */
     public function getUnreadMessagesCountAttribute(): int
     {
         return $this->receivedMessages()->where('is_read', false)->count();

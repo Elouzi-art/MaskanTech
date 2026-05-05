@@ -17,7 +17,8 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         $properties = Property::with(['primaryImage', 'favoritedBy'])
-            ->filter($request->only(['q', 'type', 'city', 'status', 'price_min', 'price_max', 'bedrooms', 'sort']))
+            ->forUser(Auth::user())   // filtre audience selon rôle
+            ->filter($request->only(['q', 'type', 'city', 'status', 'price_min', 'price_max', 'bedrooms', 'audience', 'sort']))
             ->paginate(12)
             ->withQueryString();
 
@@ -29,7 +30,6 @@ class PropertyController extends Controller
     public function create()
     {
         $this->authorize('create', Property::class);
-
         $features = PropertyFeature::orderBy('name')->get();
 
         return view('properties.form', [
@@ -46,17 +46,15 @@ class PropertyController extends Controller
 
         $property = Auth::user()->properties()->create($request->validated());
 
-        // Caractéristiques
         if ($request->has('features')) {
             $property->features()->sync($request->input('features'));
         }
 
-        // Images
         $this->handleImages($request, $property);
 
         return redirect()
             ->route('properties.show', $property)
-            ->with('success', 'Bien publié avec succès.');
+            ->with('success', 'Annonce publiée avec succès.');
     }
 
     // ── Détail d'un bien ──────────────────────────────────────────────────
@@ -73,7 +71,6 @@ class PropertyController extends Controller
     public function edit(Property $property)
     {
         $this->authorize('update', $property);
-
         $features = PropertyFeature::orderBy('name')->get();
 
         return view('properties.form', compact('property', 'features'));
@@ -95,7 +92,7 @@ class PropertyController extends Controller
 
         return redirect()
             ->route('properties.show', $property)
-            ->with('success', 'Bien mis à jour.');
+            ->with('success', 'Annonce mise à jour.');
     }
 
     // ── Suppression ───────────────────────────────────────────────────────
@@ -104,7 +101,6 @@ class PropertyController extends Controller
     {
         $this->authorize('delete', $property);
 
-        // Supprimer les fichiers images
         foreach ($property->images as $img) {
             Storage::disk('public')->delete($img->image_path);
         }
@@ -113,7 +109,7 @@ class PropertyController extends Controller
 
         return redirect()
             ->route('properties.index')
-            ->with('success', 'Bien supprimé.');
+            ->with('success', 'Annonce supprimée.');
     }
 
     // ── Incrémenter le compteur de vues (POST AJAX) ───────────────────────
@@ -121,6 +117,13 @@ class PropertyController extends Controller
     public function incrementViews(Property $property)
     {
         $property->increment('views_count');
+
+        // Stocker dans la session pour "récemment consultés"
+        $viewed = session('recently_viewed', []);
+        $viewed = array_filter($viewed, fn($id) => $id !== $property->id);
+        array_unshift($viewed, $property->id);
+        session(['recently_viewed' => array_slice($viewed, 0, 10)]);
+
         return response()->json(['views' => $property->views_count]);
     }
 
@@ -137,7 +140,7 @@ class PropertyController extends Controller
         foreach ($request->file('images') as $i => $file) {
             $path = $file->store('properties', 'public');
 
-            $image = $property->images()->create([
+            $property->images()->create([
                 'image_path'     => $path,
                 'is_primary'     => $isFirst && $i === 0,
                 'order_position' => $property->images()->count() + $i,
