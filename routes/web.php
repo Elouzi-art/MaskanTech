@@ -10,9 +10,19 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 
-
 // ── PUBLIQUES ────────────────────────────────────────────────────────────────
+
+// Route `/` : redirige vers /biens (liste publique)
 Route::get('/', fn() => redirect()->route('properties.index'))->name('home');
+
+// Route `/home` : utilisée par Breeze après login — redirige selon l'état de connexion
+Route::get('/home', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
+});
+
 Route::get('/biens', [PropertyController::class, 'index'])->name('properties.index');
 Route::get('/contact',  [ContactController::class, 'create'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
@@ -24,8 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/profil',   [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profil',    [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profil',  [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ⚠️ ORDRE CRITIQUE : /biens/creer AVANT /biens/{property}
     // sinon Laravel interprète "creer" comme un slug

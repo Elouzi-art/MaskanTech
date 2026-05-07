@@ -48,11 +48,13 @@ class DashboardController extends Controller
             ->latest()
             ->limit(20)
             ->get()
-            ->map(fn($p) => (object)[
+            ->map(fn($p) => [
                 'type'   => $p->status === 'rented' ? 'loué' : 'nouveau',
                 'title'  => $p->title,
-                'sub'    => $p->city . ' — ' . ($p->user->name ?? '?'),
-                'date'   => $p->created_at->diffForHumans(),
+                'sub'    => $p->city . ' — ' . $p->user->name,
+                'time'   => $p->created_at->format('H:i'),
+                'agent'  => $p->user->name,
+                'city'   => $p->city,
                 'status' => $p->status,
             ]);
 

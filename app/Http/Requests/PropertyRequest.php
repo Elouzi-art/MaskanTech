@@ -8,7 +8,20 @@ class PropertyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && in_array(auth()->user()->role, ['admin', 'agent', 'owner']);
+        // Seuls admin, agent et owner peuvent publier des annonces.
+        // Les clients (client, student) ne publient pas — ils louent.
+        if (! auth()->check()) {
+            return false;
+        }
+
+        return in_array(auth()->user()->role, ['admin', 'agent', 'owner']);
+    }
+
+    protected function failedAuthorization(): never
+    {
+        throw new \Illuminate\Auth\Access\AuthorizationException(
+            'Seuls les propriétaires, agents et administrateurs peuvent publier une annonce.'
+        );
     }
 
     public function rules(): array

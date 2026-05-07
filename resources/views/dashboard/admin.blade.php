@@ -78,7 +78,7 @@
             ['label' => 'Total biens',    'value' => $stats['total_properties'],   'sub' => 'publiés'],
             ['label' => 'Utilisateurs',   'value' => $stats['total_users'],        'sub' => 'inscrits'],
             ['label' => 'RDV ce mois',    'value' => $stats['appointments_month'], 'sub' => 'visites'],
-            ['label' => 'Ventes',         'value' => $stats['total_sold'],         'sub' => 'conclues'],
+            ['label' => 'Logements loués', 'value' => $stats['rented_properties'],  'sub' => 'en location'],
         ] as $m)
         <x-metric-card :label="$m['label']" :value="$m['value']" :sub="$m['sub']" />
         @endforeach
