@@ -1,0 +1,80 @@
+/* Unified UI CSS — monochrome + prototype-inspired layout
+   Merges neumorphism/glass + prototype popup styles
+*/
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+:root{
+  --bg:#ffffff;
+  --card:#ffffff;
+  --muted:#6B7280;
+  --text:#0b0b0b;
+  --primary:#000000;
+  --radius:12px;
+  --soft-shadow: 8px 8px 20px rgba(0,0,0,0.06);
+  --soft-highlight: -8px -8px 20px rgba(255,255,255,0.9);
+  --glass-border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:var(--text);background:var(--bg)}
+
+/* Page background helpers (hero usage) */
+.bg-hero{background-position:center;background-size:cover;background-repeat:no-repeat}
+
+/* Navbar (prototype-inspired) */
+.header-fixed{position:fixed;top:0;left:0;width:100%;z-index:50}
+.navbar{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:20px}
+.navbar .logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)}
+.navbar .links{display:flex;gap:28px;align-items:center}
+.navbar .links a{color:var(--text);text-decoration:none;font-weight:600}
+.navbar .login-btn{background:var(--card);border:1px solid rgba(0,0,0,0.06);padding:8px 14px;border-radius:6px;font-weight:700}
+
+/* Popup / modal (prototype) */
+.form-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:60;max-width:760px;width:100%;opacity:1;background:var(--card);border:6px solid #fff;box-shadow:0 25px 60px rgba(0,0,0,0.45);overflow:hidden}
+.form-popup .form-box{display:flex;min-height:360px}
+.form-box .form-details{width:330px;color:#fff;text-align:center;display:flex;flex-direction:column;justify-content:center;padding:0}
+.form-details.login{background-position:center;background-size:cover}
+.form-box .form-content{flex:1;padding:36px}
+.form-popup .close-btn{position:absolute;right:12px;top:12px;color:#8b8b8b;cursor:pointer}
+
+/* Floating label inputs */
+.input-field{position:relative;height:52px;width:100%;margin-top:18px}
+.input-field input{height:100%;width:100%;background:transparent;border:1px solid rgba(0,0,0,0.18);padding:12px 14px;border-radius:6px;font-size:0.95rem}
+.input-field input:focus{border-color:var(--primary);box-shadow:0 6px 18px rgba(0,0,0,0.06);outline:none}
+.input-field label{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b6b6b;transition:0.18s ease}
+.input-field input:focus + label,
+.input-field input:not(:placeholder-shown) + label{transform:translateY(-140%);font-size:0.72rem;color:var(--primary)}
+
+/* Buttons */
+.btn-primary{display:inline-block;background:var(--primary);color:#fff;padding:12px 18px;border-radius:6px;border:none;font-weight:700;cursor:pointer}
+.btn-primary:hover{opacity:0.95}
+
+/* Cards and small utilities */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--soft-shadow),var(--soft-highlight);border:var(--glass-border)}
+.neu{box-shadow:6px 6px 18px rgba(0,0,0,0.06),-6px -6px 18px rgba(255,255,255,0.9);border-radius:var(--radius)}
+
+/* Modal look: white border between panels */
+.modal-frame{display:inline-block;border-radius:8px;overflow:hidden}
+.modal-panel-left{border-right:6px solid #fff}
+
+/* Responsive behaviors */
+@media (max-width:950px){
+  .navbar .logo img{display:none}
+  .navbar .links{position:fixed;left:-100%;top:0;width:100%;height:100vh;padding-top:60px;background:var(--card);flex-direction:column;text-align:center}
+  .navbar .links.show-menu{left:0}
+}
+@media (max-width:760px){
+  .form-popup{width:95%}
+  .form-box .form-details{display:none}
+  .form-box .form-content{padding:24px}
+}
+
+/* Tiny helpers */
+.text-muted{color:var(--muted)}
+.center{text-align:center}
+
+/* Keep previous utility classes for compatibility */
+.input{background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));border-radius:10px;padding:.6rem .75rem;border:1px solid rgba(0,0,0,0.06);outline:none}
+.input:focus{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+
+/* End of ui.css */
