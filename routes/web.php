@@ -12,3 +12,6 @@ Route::get('/register', function () {
 Route::get('/login', function () {
     return view('auth.login');
 });
+Route::get('/biens', function () {
+    return view('pages.properties');
+});
