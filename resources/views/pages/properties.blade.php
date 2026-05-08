@@ -269,7 +269,7 @@
                         <span class="prop-detail">📐 35m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/1" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>
@@ -292,7 +292,7 @@
                         <span class="prop-detail">📐 65m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/2" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>
@@ -321,7 +321,7 @@
                         <span class="prop-detail">📐 18m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/3" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>
@@ -345,7 +345,7 @@
                         <span class="prop-detail">📐 90m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/4" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>
@@ -374,7 +374,7 @@
                         <span class="prop-detail">📐 28m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/5" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>
@@ -397,7 +397,7 @@
                         <span class="prop-detail">📐 180m²</span>
                     </div>
                     <div class="prop-actions">
-                        <a href="#" class="prop-btn-primary">Voir l'annonce</a>
+                        <a href="/biens/6" class="prop-btn-primary">Voir l'annonce</a>
                         <button class="prop-btn-outline">💬</button>
                     </div>
                 </div>

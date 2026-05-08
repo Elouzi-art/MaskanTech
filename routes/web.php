@@ -15,3 +15,6 @@ Route::get('/login', function () {
 Route::get('/biens', function () {
     return view('pages.properties');
 });
+Route::get('/biens/{id}', function ($id) {
+    return view('pages.property-detail');
+});
