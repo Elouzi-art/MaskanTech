@@ -21,3 +21,6 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
