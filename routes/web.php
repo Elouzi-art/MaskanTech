@@ -34,3 +34,6 @@ Route::get('/proprietaires', function () {
 Route::get('/dashboard', function () {
     return view('pages.dashboard');
 })->name('dashboard');
+Route::get('/publier', function () {
+    return view('pages.publish');
+})->name('publish');
