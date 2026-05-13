@@ -1,204 +1,90 @@
-Tu as raison ! Voici la version **complète avec Fork et Upstream** :
+# Corrections appliquées — POINT → POINT_fixed
 
-# 🚀 Workflow complet - Début du projet MaskanTech (avec Fork)
+## Fichiers modifiés
+
+### 1. `database/migrations/2024_01_01_000001_create_users_table.php`
+
+- ✅ Les 5 rôles intégrés directement : `admin, agent, client, student, owner`
+- ✅ Supprime le besoin de la migration ALTER TABLE séparée
+
+### 2. `database/migrations/2024_01_01_000002_create_properties_table.php`
+
+- ✅ `status` ENUM : `available, rented` uniquement (suppression de `sold` et `under_construction`)
+- ✅ `target_audience` ENUM intégré directement : `all, student, professional`
+- ✅ Supprime le besoin de la migration ADD COLUMN séparée
+
+### 3. Migrations SUPPRIMÉES (redondantes)
+
+- ❌ `2026_05_05_000001_add_target_audience_to_properties.php` → intégré dans migration 002
+- ❌ `2026_05_05_000002_extend_users_role_enum.php` → intégré dans migration 001
+
+### 4. `app/Http/Requests/PropertyRequest.php`
+
+- ✅ `authorize()` : autorise aussi le rôle `owner`
+- ✅ Règle `status` : `in:available,rented` (suppression de sold/under_construction)
+- ✅ Règle `target_audience` ajoutée : `required|in:all,student,professional`
+
+### 5. `app/Http/Controllers/Auth/RegisteredUserController.php`
+
+- ✅ Validation du champ `role` : `required|in:client,student,owner`
+- ✅ Sauvegarde du rôle choisi au moment de l'inscription
+
+### 6. `app/Http/Controllers/DashboardController.php`
+
+- ✅ Import `Favorite` supprimé (ce modèle n'existe pas — c'est une table pivot)
+- ✅ Remplacé par `DB::table('favorites')->...->count()`
+
+### 7. `app/Policies/PropertyPolicy.php`
+
+- ✅ `create()` : autorise aussi le rôle `owner`
+
+### 8. `resources/views/auth/register.blade.php`
+
+- ✅ Redesigné en dark design (même style que le reste de l'app)
+- ✅ Sélection du rôle avec boutons radio visuels : Locataire / Étudiant / Propriétaire
+
+### 9. `resources/views/auth/login.blade.php`
+
+- ✅ Redesigné en dark design sans composants Breeze génériques
+
+### 10. `resources/views/layouts/guest.blade.php`
+
+- ✅ Layout dark cohérent avec `layouts/app.blade.php`
+
+### 11. `database/seeders/DatabaseSeeder.php`
+
+- ✅ Seeder complet avec données de démo réalistes
+- ✅ Tous les rôles représentés
+- ✅ Annonces avec audience cible variée
 
 ---
 
-## 📁 Partie 1 : Toi (Créateur du projet)
+## Commandes pour démarrer (fresh install)
 
 ```bash
-# 1. Créer le projet Laravel
-composer create-project laravel/laravel MaskanTech
-cd MaskanTech
-
-# 2. Initialiser Git
-git init
-git add .
-git commit -m "🎉 Initialisation du projet Laravel"
-
-# 3. Créer dépôt PUBLIC sur GitHub
-# Aller sur github.com > New repository > MaskanTech (PUBLIC)
-
-# 4. Lier et pusher
-git remote add origin https://github.com/ton-compte/MaskanTech.git
-git branch -M main
-git push -u origin main
+# Dans le dossier du projet
+php artisan migrate:fresh --seed
+php artisan storage:link
+php artisan serve
+npm run dev
 ```
 
----
+## Comptes de démo
 
-## 📁 Partie 2 : Elle (Rejoint le projet avec FORK)
+| Email                  | Mot de passe | Rôle         |
+| ---------------------- | ------------ | ------------ |
+| admin@maskantech.ma    | password     | Admin        |
+| karim@maskantech.ma    | password     | Agent        |
+| leila@maskantech.ma    | password     | Agent        |
+| client@maskantech.ma   | password     | Locataire    |
+| etudiant@maskantech.ma | password     | Étudiant     |
+| proprio@maskantech.ma  | password     | Propriétaire |
 
-```bash
-# 1. Aller sur GitHub et FORK ton dépôt
-# https://github.com/ton-compte/MaskanTech > bouton FORK (en haut à droite)
-# Maintenant elle a son propre copie : https://github.com/son-compte/MaskanTech
+## Logique audience
 
-# 2. Ouvrir PowerShell dans son dossier
-cd C:/Users/Elle/Documents/MaskanTech
-
-# 3. Cloner SON fork (pas le tien)
-git clone https://github.com/son-compte/MaskanTech.git
-cd MaskanTech
-
-# 4. Ajouter TON dépôt comme UPSTREAM (pour recevoir tes mises à jour)
-git remote add upstream https://github.com/ton-compte/MaskanTech.git
-
-# 5. Vérifier ses remotes
-git remote -v
-# origin   https://github.com/son-compte/MaskanTech.git (fetch/push)
-# upstream https://github.com/ton-compte/MaskanTech.git (fetch)
-
-# 6. Installer Laravel
-composer install
-cp .env.example .env
-php artisan key:generate
-# Éditer .env pour la DB
-php artisan migrate
-```
-
----
-
-## 🔄 Partie 3 : Elle - Workflow quotidien (avec upstream)
-
-```bash
-# === CHAQUE MATIN : Récupérer TES nouveautés (depuis upstream) ===
-git checkout main
-git fetch upstream
-git merge upstream/main
-
-# OU en une ligne :
-git pull upstream main
-
-# === Envoyer ses mises à jour vers SON fork ===
-git push origin main
-
-# === CRÉER SA BRANCHE POUR TRAVAILLER ===
-git checkout -b feature-nom-de-sa-tache
-
-# === ELLE CODE, CODE, CODE... ===
-
-# === SAUVEGARDER SON TRAVAIL ===
-git add .
-git commit -m "Description de ce qu'elle a fait"
-
-# === ENVOYER SA BRANCHE SUR SON FORK ===
-git push origin feature-nom-de-sa-tache
-
-# === SUR GITHUB : Elle crée une Pull Request DEPUIS SON FORK vers TON DEPOT ===
-# GitHub va automatiquement lui proposer "Compare & pull request"
-```
-
----
-
-## 🔄 Partie 4 : Toi - Tu récupères son travail
-
-```bash
-# === VOIR SA PULL REQUEST SUR GITHUB ===
-# Dans ton dépôt, onglet "Pull Requests"
-
-# === TESTER SA BRANCHE ===
-git fetch origin
-git checkout -b feature-nom-de-sa-tache origin/feature-nom-de-sa-tache
-
-# === MERGER SA PULL REQUEST ===
-# Sur GitHub : cliquer sur "Merge pull request"
-```
-
----
-
-## 🔄 Partie 5 : Elle - Après que tu aies mergé (mettre à jour son fork)
-
-```bash
-# === RÉCUPÉRER TES NOUVEAUX COMMITS (depuis upstream) ===
-git checkout main
-git pull upstream main
-
-# === METTRE À JOUR SON FORK ===
-git push origin main
-
-# === SUPPRIMER SA BRANCHE (optionnel) ===
-git branch -d feature-nom-de-sa-tache
-git push origin --delete feature-nom-de-sa-tache
-```
-
----
-
-## 📋 Schéma visuel des flux
-
-```
-                    TON DEPOT (original)
-                    github.com/toi/MaskanTech
-                           ▲
-                           │ Pull Request
-                           │
-                    SON FORK (sa copie)
-                    github.com/elle/MaskanTech
-                           ▲
-                           │ git push origin
-                           │
-                    SON PC (local)
-                    C:/elle/MaskanTech
-                           ▲
-                           │ git pull upstream
-                           │ (tes modifications)
-                    TON DEPOT (original)
-                    github.com/toi/MaskanTech
-```
-
----
-
-## 📋 Récapitulatif des commandes pour ELLE
-
-```bash
-# ---- 1 SEULE FOIS (installation) ----
-# Sur GitHub : Fork ton dépôt
-cd C:/Users/Elle/Documents/MaskanTech
-git clone https://github.com/son-compte/MaskanTech.git
-cd MaskanTech
-git remote add upstream https://github.com/ton-compte/MaskanTech.git
-composer install
-cp .env.example .env
-php artisan key:generate
-# Éditer .env pour la DB
-php artisan migrate
-
-# ---- CHAQUE MATIN (récupérer tes modifs) ----
-git checkout main
-git pull upstream main
-git push origin main
-
-# ---- CRÉER UNE BRANCHE ET TRAVAILLER ----
-git checkout -b feature-ma-tache
-# ... coder ...
-git add .
-git commit -m "ma fonctionnalité"
-git push origin feature-ma-tache
-
-# ---- SUR GITHUB : Créer une Pull Request vers TON dépôt ----
-
-# ---- APRÈS QUE TU AIES MERGÉ SA PR ----
-git checkout main
-git pull upstream main
-git push origin main
-```
-
----
-
-## ✅ Comparaison des méthodes
-
-| Méthode                  | Avantages                                                                   | Inconvénients                                    |
-| ------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------ |
-| **Fork + Upstream**      | Elle a sa propre copie sur GitHub Idéal pour open source Plus professionnel | Plus d'étapes au début                           |
-| **Collaborateur direct** | Plus simple Plus rapide                                                     | Elle ne voit pas le projet sur son compte GitHub |
-
-```
-
-**Résumé pour elle** :
-1. **Fork** ton dépôt (1 clic sur GitHub)
-2. **Clone** son fork
-3. **Ajoute upstream** = ton dépôt
-4. **Pull upstream** chaque matin pour avoir tes modifs
-5. **Push origin** pour envoyer vers son fork
-6. **Pull Request** pour te proposer ses changements
-```
+| Rôle utilisateur | Voit les annonces         |
+| ---------------- | ------------------------- |
+| admin / agent    | Toutes                    |
+| student          | `all` + `student`         |
+| client           | `all` + `professional`    |
+| owner            | Toutes (peut aussi louer) |
