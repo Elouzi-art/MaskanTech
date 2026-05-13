@@ -31,3 +31,6 @@ Route::get('/etudiants', function () {
 Route::get('/proprietaires', function () {
     return view('pages.owners');
 })->name('owners');
+Route::get('/dashboard', function () {
+    return view('pages.dashboard');
+})->name('dashboard');
