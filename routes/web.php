@@ -43,3 +43,10 @@ Route::get('/messages', function () {
 Route::get('/rendez-vous', function () {
     return view('pages.appointments');
 })->name('appointments');
+Route::get('/blog', function () {
+    return view('pages.blog');
+})->name('blog');
+
+Route::get('/blog/{slug}', function ($slug) {
+    return view('pages.blog-detail');
+})->name('blog.show');
