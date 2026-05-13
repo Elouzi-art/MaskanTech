@@ -50,3 +50,6 @@ Route::get('/blog', function () {
 Route::get('/blog/{slug}', function ($slug) {
     return view('pages.blog-detail');
 })->name('blog.show');
+Route::get('/admin', function () {
+    return view('pages.admin');
+})->name('admin');
