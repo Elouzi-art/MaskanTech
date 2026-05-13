@@ -40,3 +40,6 @@ Route::get('/publier', function () {
 Route::get('/messages', function () {
     return view('pages.messages');
 })->name('messages');
+Route::get('/rendez-vous', function () {
+    return view('pages.appointments');
+})->name('appointments');
