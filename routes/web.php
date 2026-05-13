@@ -24,3 +24,10 @@ Route::get('/register', function () {
 Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
+Route::get('/etudiants', function () {
+    return view('pages.students');
+})->name('students');
+
+Route::get('/proprietaires', function () {
+    return view('pages.owners');
+})->name('owners');
