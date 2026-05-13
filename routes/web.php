@@ -37,3 +37,6 @@ Route::get('/dashboard', function () {
 Route::get('/publier', function () {
     return view('pages.publish');
 })->name('publish');
+Route::get('/messages', function () {
+    return view('pages.messages');
+})->name('messages');
