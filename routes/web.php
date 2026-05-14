@@ -53,3 +53,6 @@ Route::get('/blog/{slug}', function ($slug) {
 Route::get('/admin', function () {
     return view('pages.admin');
 })->name('admin');
+Route::get('/a-propos', function () {
+    return view('pages.about');
+})->name('about');
