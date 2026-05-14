@@ -175,9 +175,17 @@
 
     {{-- FOOTER --}}
     <footer class="mk-footer">
-        <div class="mk-footer-logo">Maskan<span>Tech</span></div>
-        <div class="mk-footer-copy">© 2026 — Hajar Tanani & Salmane Elouzi</div>
-    </footer>
+    <div class="mk-footer-logo">Maskan<span>Tech</span></div>
+    <div style="display:flex;gap:32px;">
+        <a href="/biens" style="color:#444;font-size:13px;text-decoration:none;">Logements</a>
+        <a href="/etudiants" style="color:#444;font-size:13px;text-decoration:none;">Étudiants</a>
+        <a href="/proprietaires" style="color:#444;font-size:13px;text-decoration:none;">Propriétaires</a>
+        <a href="/blog" style="color:#444;font-size:13px;text-decoration:none;">Blog</a>
+        <a href="/a-propos" style="color:#444;font-size:13px;text-decoration:none;">À propos</a>
+        <a href="/contact" style="color:#444;font-size:13px;text-decoration:none;">Contact</a>
+    </div>
+    <div class="mk-footer-copy">© 2026 — Hajar Tanani & Salmane Elouzi</div>
+</footer>
 
     @yield('scripts')
 
