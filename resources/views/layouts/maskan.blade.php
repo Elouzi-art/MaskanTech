@@ -161,12 +161,13 @@
             <span class="mk-logo-text">Maskan<span>Tech</span></span>
         </a>
         <div class="mk-nav-links">
-            <a href="/biens">Logements</a>
-            <a href="#">Étudiants</a>
-            <a href="#">Propriétaires</a>
-            <a href="/login">Connexion</a>
-            <a href="/register" class="mk-nav-cta">S'inscrire</a>
-        </div>
+    <a href="/biens">Logements</a>
+    <a href="/etudiants">Étudiants</a>
+    <a href="/proprietaires">Propriétaires</a>
+    <a href="/a-propos">À propos</a>
+    <a href="/login">Connexion</a>
+    <a href="/register" class="mk-nav-cta">S'inscrire</a>
+</div>
     </nav>
 
     {{-- CONTENU --}}
