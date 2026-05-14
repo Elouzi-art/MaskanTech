@@ -160,64 +160,53 @@
         <div class="dash-nav">
             {{-- COMMUN À TOUS --}}
             <div class="dash-nav-section">Principal</div>
-            <a href="/dashboard" class="dash-nav-link active">
-                <span class="dash-nav-icon">🏠</span> Tableau de bord
-            </a>
-            <a href="/biens" class="dash-nav-link">
-                <span class="dash-nav-icon">🔍</span> Rechercher
-            </a>
-            <a href="#" class="dash-nav-link">
-                <span class="dash-nav-icon">❤️</span> Mes favoris
-            </a>
+            {{-- COMMUN À TOUS --}}
+<a href="/dashboard" class="dash-nav-link active">
+    <span class="dash-nav-icon">🏠</span> Tableau de bord
+</a>
+<a href="/biens" class="dash-nav-link">
+    <span class="dash-nav-icon">🔍</span> Rechercher
+</a>
+<a href="#" class="dash-nav-link">
+    <span class="dash-nav-icon">❤️</span> Mes favoris
+</a>
 
-            <div class="dash-nav-section">Communication</div>
-            <a href="#" class="dash-nav-link">
-                <span class="dash-nav-icon">💬</span> Messages
-                <span class="dash-nav-badge">3</span>
-            </a>
-            <a href="#" class="dash-nav-link">
-                <span class="dash-nav-icon">📅</span> Rendez-vous
-            </a>
+<a href="/messages" class="dash-nav-link">
+    <span class="dash-nav-icon">💬</span> Messages
+    <span class="dash-nav-badge">3</span>
+</a>
+<a href="/rendez-vous" class="dash-nav-link">
+    <span class="dash-nav-icon">📅</span> Rendez-vous
+</a>
 
-            {{-- PROPRIÉTAIRE UNIQUEMENT --}}
-            @auth
-                @if(auth()->user()->role === 'owner' || auth()->user()->role === 'admin')
-                <div class="dash-nav-section">Mes annonces</div>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">📋</span> Mes annonces
-                </a>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">➕</span> Publier une annonce
-                </a>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">📊</span> Statistiques
-                </a>
-                @endif
-            @endauth
+{{-- PROPRIÉTAIRE --}}
+<a href="#" class="dash-nav-link">
+    <span class="dash-nav-icon">📋</span> Mes annonces
+</a>
+<a href="/publier" class="dash-nav-link">
+    <span class="dash-nav-icon">➕</span> Publier une annonce
+</a>
+<a href="#" class="dash-nav-link">
+    <span class="dash-nav-icon">📊</span> Statistiques
+</a>
 
-            {{-- ADMIN UNIQUEMENT --}}
-            @auth
-                @if(auth()->user()->role === 'admin')
-                <div class="dash-nav-section">Administration</div>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">👥</span> Utilisateurs
-                </a>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">🏘️</span> Toutes les annonces
-                </a>
-                <a href="#" class="dash-nav-link">
-                    <span class="dash-nav-icon">⚠️</span> Signalements
-                </a>
-                @endif
-            @endauth
+{{-- ADMIN --}}
+<a href="/admin" class="dash-nav-link">
+    <span class="dash-nav-icon">👥</span> Utilisateurs
+</a>
+<a href="/biens" class="dash-nav-link">
+    <span class="dash-nav-icon">🏘️</span> Toutes les annonces
+</a>
+<a href="#" class="dash-nav-link">
+    <span class="dash-nav-icon">⚠️</span> Signalements
+</a>
 
-            <div class="dash-nav-section">Compte</div>
-            <a href="#" class="dash-nav-link">
-                <span class="dash-nav-icon">⚙️</span> Paramètres
-            </a>
-            <a href="#" class="dash-nav-link" style="color:#ff6b6b;">
-                <span class="dash-nav-icon">🚪</span> Déconnexion
-            </a>
+<a href="#" class="dash-nav-link">
+    <span class="dash-nav-icon">⚙️</span> Paramètres
+</a>
+<a href="/login" class="dash-nav-link" style="color:#ff6b6b;">
+    <span class="dash-nav-icon">🚪</span> Déconnexion
+</a>
         </div>
     </div>
 
