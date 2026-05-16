@@ -157,16 +157,16 @@
             <div class="divider-line"></div>
         </div>
 
-        <form>
+        <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="mk-form-group">
                 <label>Email</label>
-                <input type="email" placeholder="exemple@email.com" required>
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="exemple@email.com" required>
             </div>
 
             <div class="mk-form-group">
                 <label>Mot de passe</label>
-                <input type="password" placeholder="••••••••" required>
+                <input type="password" name="password" placeholder="••••••••" required>
             </div>
 
             <div class="forgot">
