@@ -1,4 +1,5 @@
 <?php
+// app/Http/Requests/AppointmentRequest.php — Fix: client + student + owner autorisés
 
 namespace App\Http\Requests;
 
@@ -8,14 +9,14 @@ class AppointmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->role === 'client';
+        return auth()->check()
+            && in_array(auth()->user()->role, ['client', 'student', 'owner']);
     }
 
     public function rules(): array
     {
         return [
             'property_id' => 'required|exists:properties,id',
-            'agent_id'    => 'required|exists:users,id',
             'date'        => 'required|date|after:today',
             'time'        => 'required|date_format:H:i',
             'message'     => 'nullable|string|max:1000',
@@ -25,8 +26,8 @@ class AppointmentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'date.after'  => 'La date de visite doit être dans le futur.',
-            'time.date_format' => 'Format de l\'heure invalide (HH:MM attendu).',
+            'date.after'       => 'La date de visite doit être dans le futur.',
+            'time.date_format' => "Format de l'heure invalide (HH:MM attendu).",
         ];
     }
 }

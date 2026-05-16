@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Controller.php — Fix: AuthorizesRequests requis pour Laravel 11
 
 namespace App\Http\Controllers;
 

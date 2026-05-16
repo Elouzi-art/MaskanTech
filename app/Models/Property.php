@@ -34,6 +34,7 @@ class Property extends Model
 
     /**
      * Audiences cibles pour une annonce.
+        * "all" = visible par tous, "student" = uniquement pour étudiants, "professional" = uniquement pour clients professionnels.     
      */
     const AUDIENCES = [
         'all'          => 'Tout le monde',
