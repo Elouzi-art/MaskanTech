@@ -181,6 +181,6 @@
 @push('scripts')
 <script>
 // Incrémenter le compteur de vues
-fetch('{{ route('properties.view', $property) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }});
+fetch('{{ route('properties.views', $property) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }});
 </script>
 @endpush

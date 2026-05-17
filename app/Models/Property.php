@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\PropertyFeature;
 
 class Property extends Model
 {
@@ -93,6 +94,10 @@ class Property extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    public function features()
+    {
+    return $this->belongsToMany(PropertyFeature::class, 'property_feature_property');
+    }
     // ── Scopes ────────────────────────────────────────────────────────────
 
     public function scopeAvailable($query)
