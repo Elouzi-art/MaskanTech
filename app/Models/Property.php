@@ -67,19 +67,20 @@ class Property extends Model
         return $this->belongsTo(User::class);
     }
 
+   
+
     public function images()
     {
-        return $this->hasMany(PropertyImage::class)->orderBy('order_position');
+    return $this->hasMany(PropertyImage::class)
+        ->orderBy('is_primary', 'desc')
+        ->orderBy('order');            // ← nom réel dans la migration
     }
 
     public function primaryImage()
     {
-        return $this->hasOne(PropertyImage::class)->where('is_primary', true)->orderBy('order_position');
-    }
-
-    public function features()
-    {
-        return $this->belongsToMany(PropertyFeature::class, 'property_feature_property');
+    return $this->hasOne(PropertyImage::class)
+        ->where('is_primary', true)
+        ->orderBy('order');            // ← nom réel dans la migration
     }
 
     public function favoritedBy()
@@ -179,8 +180,5 @@ class Property extends Model
         return self::STATUSES[$this->status ?? 'available'] ?? ucfirst($this->status);
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
+   
 }
