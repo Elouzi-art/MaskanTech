@@ -35,7 +35,9 @@ class Property extends Model
 
     /**
      * Audiences cibles pour une annonce.
-        * "all" = visible par tous, "student" = uniquement pour étudiants, "professional" = uniquement pour clients professionnels.     
+     * "all" = visible par tous
+     * "student" = uniquement pour étudiants
+     * "professional" = uniquement pour clients professionnels
      */
     const AUDIENCES = [
         'all'          => 'Tout le monde',
@@ -68,20 +70,18 @@ class Property extends Model
         return $this->belongsTo(User::class);
     }
 
-   
-
     public function images()
     {
-    return $this->hasMany(PropertyImage::class)
-        ->orderBy('is_primary', 'desc')
-        ->orderBy('order');            // ← nom réel dans la migration
+        return $this->hasMany(PropertyImage::class)
+            ->orderBy('is_primary', 'desc')
+            ->orderBy('order');
     }
 
     public function primaryImage()
     {
-    return $this->hasOne(PropertyImage::class)
-        ->where('is_primary', true)
-        ->orderBy('order');            // ← nom réel dans la migration
+        return $this->hasOne(PropertyImage::class)
+            ->where('is_primary', true)
+            ->orderBy('order');
     }
 
     public function favoritedBy()
@@ -96,8 +96,9 @@ class Property extends Model
 
     public function features()
     {
-    return $this->belongsToMany(PropertyFeature::class, 'property_feature_property');
+        return $this->belongsToMany(PropertyFeature::class, 'property_feature_property');
     }
+
     // ── Scopes ────────────────────────────────────────────────────────────
 
     public function scopeAvailable($query)
@@ -111,20 +112,21 @@ class Property extends Model
     }
 
     /**
-     * Scope pour filtrer selon le rôle/audience de l'utilisateur connecté.
+     * Filtre les annonces selon le rôle/audience de l'utilisateur connecté.
      * Un étudiant ne voit que les annonces "all" ou "student".
+     * Un client ne voit que "all" ou "professional".
+     * Admin, agent, owner voient tout.
      */
     public function scopeForUser($query, ?User $user)
     {
         if (! $user || $user->isAdmin() || $user->isAgent() || $user->isOwner()) {
-            return $query; // tout voir
+            return $query;
         }
 
         if ($user->isStudent()) {
             return $query->whereIn('target_audience', ['all', 'student']);
         }
 
-        // client professionnel
         return $query->whereIn('target_audience', ['all', 'professional']);
     }
 
@@ -160,14 +162,13 @@ class Property extends Model
     // ── Helpers ───────────────────────────────────────────────────────────
 
     /**
-     * ✅ Fix N+1 : utilise la relation déjà chargée si disponible
+     * Fix N+1 : utilise la relation déjà chargée si disponible
      * au lieu de faire une requête SQL par propriété.
      */
     public function isFavoritedBy(?User $user): bool
     {
         if (! $user) return false;
 
-        // Si la relation favoritedBy est déjà chargée (eager load), on l'utilise
         if ($this->relationLoaded('favoritedBy')) {
             return $this->favoritedBy->contains('id', $user->id);
         }
@@ -184,6 +185,4 @@ class Property extends Model
     {
         return self::STATUSES[$this->status ?? 'available'] ?? ucfirst($this->status);
     }
-
-   
 }

@@ -1,186 +1,190 @@
-@extends('layouts.app')
-@section('title', $property->title)
+@extends('layouts.maskan')
+@section('title', 'Conversation — ' . $user->name)
+
+@section('styles')
+body { overflow: hidden; }
+.chat-wrap { display: flex; height: calc(100vh - 73px); }
+
+/* SIDEBAR conversations */
+.conv-sidebar {
+    width: 300px; min-width: 300px;
+    border-right: 1px solid #f0ede8;
+    display: flex; flex-direction: column;
+    background: #fff; overflow: hidden;
+}
+.conv-header { padding: 20px; border-bottom: 1px solid #f0ede8; }
+.conv-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
+.conv-search { width: 100%; padding: 9px 13px; border: 1.5px solid #e8e3db; border-radius: 8px; font-size: 13px; outline: none; transition: border-color 0.2s; font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+.conv-search:focus { border-color: #C8873A; }
+.conv-list { overflow-y: auto; flex: 1; }
+.conv-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; border-bottom: 1px solid #f8f7f4; transition: background 0.15s; text-decoration: none; }
+.conv-item:hover { background: #fafaf8; }
+.conv-item.active { background: #fdf6ee; border-left: 3px solid #C8873A; }
+.conv-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #C8873A, #E8A855); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.conv-info { flex: 1; min-width: 0; }
+.conv-name { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; }
+.conv-preview { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv-meta { text-align: right; }
+.conv-time { font-size: 11px; color: #aaa; }
+.conv-unread { background: #C8873A; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-top: 4px; }
+
+/* ZONE CHAT */
+.chat-area { flex: 1; display: flex; flex-direction: column; background: #f8f7f4; min-width: 0; }
+.chat-header { padding: 16px 24px; background: #fff; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; gap: 14px; }
+.chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #C8873A, #E8A855); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.chat-header-name { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+.chat-header-role { font-size: 12px; color: #888; margin-top: 2px; }
+
+/* MESSAGES */
+.chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.msg { display: flex; gap: 10px; max-width: 68%; }
+.msg.sent { margin-left: auto; flex-direction: row-reverse; }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #C8873A, #E8A855); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; align-self: flex-end; }
+.msg-bubble { padding: 11px 15px; border-radius: 16px; font-size: 14px; line-height: 1.6; color: #1a1a1a; background: #fff; border: 1px solid #f0ede8; }
+.msg.sent .msg-bubble { background: #C8873A; color: #fff; border-color: #C8873A; }
+.msg-time { font-size: 11px; color: #aaa; margin-top: 4px; }
+.msg.sent .msg-time { text-align: left; }
+.date-sep { text-align: center; font-size: 12px; color: #aaa; margin: 8px 0; }
+.empty-chat { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: #888; }
+.empty-chat-icon { font-size: 48px; }
+
+/* INPUT */
+.chat-input-area { padding: 14px 24px; background: #fff; border-top: 1px solid #f0ede8; }
+.chat-input-form { display: flex; gap: 12px; align-items: flex-end; }
+.chat-input { flex: 1; padding: 11px 16px; border: 1.5px solid #e8e3db; border-radius: 24px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; resize: none; max-height: 100px; }
+.chat-input:focus { border-color: #C8873A; }
+.send-btn { width: 42px; height: 42px; border-radius: 50%; background: #C8873A; color: #fff; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; flex-shrink: 0; font-size: 16px; }
+.send-btn:hover { background: #b07530; }
+@endsection
 
 @section('content')
-<div class="p-4 max-w-5xl mx-auto flex flex-col gap-4">
+<div class="chat-wrap">
 
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 text-[10px] text-dark-muted tracking-wider">
-        <a href="{{ route('properties.index') }}" class="hover:text-dark-text transition-colors">BIENS</a>
-        <span class="text-dark-dim">/</span>
-        <span class="text-dark-text">{{ strtoupper(Str::limit($property->title, 40)) }}</span>
+    {{-- SIDEBAR: liste des conversations --}}
+    <div class="conv-sidebar">
+        <div class="conv-header">
+            <div class="conv-title">Messages</div>
+            <input type="text" class="conv-search" placeholder="🔍 Rechercher..." id="convSearch">
+        </div>
+        <div class="conv-list" id="convList">
+            {{-- Conversation active en premier --}}
+            <a href="{{ route('messages.show', $user) }}" class="conv-item active">
+                <div class="conv-avatar">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
+                <div class="conv-info">
+                    <div class="conv-name">{{ $user->name }}</div>
+                    <div class="conv-preview">
+                        {{ $messages->last()?->message ?? 'Démarrer la conversation' }}
+                    </div>
+                </div>
+                <div class="conv-meta">
+                    <div class="conv-time">{{ $messages->last()?->created_at->format('H:i') ?? '' }}</div>
+                </div>
+            </a>
+            {{-- Autres conversations --}}
+            @php
+                $others = \App\Models\Message::where('sender_id', auth()->id())
+                    ->orWhere('receiver_id', auth()->id())
+                    ->with(['sender', 'receiver'])
+                    ->latest()->get()
+                    ->groupBy(fn($m) => $m->sender_id === auth()->id() ? $m->receiver_id : $m->sender_id)
+                    ->map(fn($msgs) => $msgs->first())
+                    ->filter(fn($m, $id) => $id != $user->id)
+                    ->take(10);
+            @endphp
+            @foreach($others as $otherId => $lastMsg)
+            @php $other = $lastMsg->sender_id === auth()->id() ? $lastMsg->receiver : $lastMsg->sender; @endphp
+            <a href="{{ route('messages.show', $other) }}" class="conv-item">
+                <div class="conv-avatar" style="background:linear-gradient(135deg,#185FA5,#3a7fc1)">
+                    {{ strtoupper(substr($other->name, 0, 2)) }}
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name">{{ $other->name }}</div>
+                    <div class="conv-preview">{{ Str::limit($lastMsg->message, 35) }}</div>
+                </div>
+                <div class="conv-meta">
+                    <div class="conv-time">{{ $lastMsg->created_at->format('H:i') }}</div>
+                    @if(!$lastMsg->is_read && $lastMsg->receiver_id === auth()->id())
+                        <div class="conv-unread">!</div>
+                    @endif
+                </div>
+            </a>
+            @endforeach
+        </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-4">
+    {{-- ZONE CHAT principale --}}
+    <div class="chat-area">
 
-        {{-- Colonne gauche : galerie + infos --}}
-        <div class="col-span-2 flex flex-col gap-3">
-
-            {{-- Galerie --}}
-            <div x-data="{ active: 0 }">
-                {{-- Image principale --}}
-                <div class="relative bg-dark-card border border-dark-border rounded-sm overflow-hidden" style="height: 320px;">
-                    @foreach($property->images as $i => $img)
-                    <img src="{{ Storage::url($img->image_path) }}"
-                         x-show="active === {{ $i }}"
-                         class="w-full h-full object-cover fade-in">
-                    @endforeach
-                    @if($property->images->isEmpty())
-                    <div class="w-full h-full flex items-center justify-center">
-                        <svg class="w-16 h-16 text-dark-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8">
-                            <path d="M3 21V9l9-7 9 7v12H3z"/><path d="M9 21v-6h6v6"/>
-                        </svg>
-                    </div>
-                    @endif
-                    <div class="absolute top-3 left-3 flex gap-1.5">
-                        <x-status-badge :status="$property->status" />
-                        @if($property->is_featured)
-                        <span class="bg-amber-950 text-amber-400 border border-amber-800 text-[9px] px-2 py-0.5 rounded-sm tracking-wider">EN VEDETTE</span>
-                        @endif
-                    </div>
-                </div>
-                {{-- Miniatures --}}
-                @if($property->images->count() > 1)
-                <div class="flex gap-1.5 mt-1.5 overflow-x-auto">
-                    @foreach($property->images as $i => $img)
-                    <button @click="active = {{ $i }}"
-                            :class="active === {{ $i }} ? 'border-indigo-600' : 'border-dark-border'"
-                            class="w-16 h-11 rounded-sm border overflow-hidden shrink-0 transition-colors">
-                        <img src="{{ Storage::url($img->image_path) }}" class="w-full h-full object-cover">
-                    </button>
-                    @endforeach
-                </div>
-                @endif
+        {{-- En-tête --}}
+        <div class="chat-header">
+            <div class="chat-header-avatar">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
+            <div>
+                <div class="chat-header-name">{{ $user->name }}</div>
+                <div class="chat-header-role">{{ $user->role_label }}</div>
             </div>
-
-            {{-- Description --}}
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-2">Description</div>
-                <p class="text-sm text-dark-text leading-relaxed">{{ $property->description }}</p>
-            </div>
-
-            {{-- Caractéristiques --}}
-            @if($property->features->count() > 0)
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-3">Équipements</div>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($property->features as $feature)
-                    <span class="bg-dark-card3 border border-dark-border text-[10px] text-dark-muted px-2.5 py-1 rounded-sm tracking-wider">
-                        {{ ucfirst($feature->name) }}
-                    </span>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-            {{-- Vidéo --}}
-            @if($property->video_url)
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-2">Vidéo de présentation</div>
-                <a href="{{ $property->video_url }}" target="_blank"
-                   class="text-indigo-400 text-xs hover:underline flex items-center gap-1.5">
-                    <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polygon points="3,1 11,6 3,11"/>
-                    </svg>
-                    Voir la vidéo
-                </a>
-            </div>
-            @endif
-
         </div>
 
-        {{-- Colonne droite : prix + détails + RDV --}}
-        <div class="flex flex-col gap-3">
-
-            {{-- Prix & titre --}}
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <h1 class="text-sm font-medium text-white tracking-wide leading-snug">{{ $property->title }}</h1>
-                <p class="text-2xl text-indigo-400 font-bold mt-2">{{ number_format($property->price, 0, ',', ' ') }} MAD</p>
-                <p class="text-[10px] text-dark-muted mt-1 flex items-center gap-1">
-                    <svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M6 1C4.3 1 3 2.3 3 4c0 2.5 3 7 3 7s3-4.5 3-7c0-1.7-1.3-3-3-3z"/>
-                    </svg>
-                    {{ $property->address }}, {{ $property->city }} {{ $property->postal_code }}
-                </p>
-            </div>
-
-            {{-- Détails techniques --}}
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-3">Détails</div>
-                @foreach([
-                    ['Type',           ucfirst($property->type)],
-                    ['Surface',        $property->area ? $property->area.' m²' : '—'],
-                    ['Pièces',         $property->rooms ?: '—'],
-                    ['Chambres',       $property->bedrooms ?: '—'],
-                    ['Salles de bain', $property->bathrooms ?: '—'],
-                    ['Année',          $property->year_built ?: '—'],
-                    ['Statut',         ucfirst($property->status)],
-                    ['Vues',           $property->views_count],
-                ] as [$k, $v])
-                <div class="flex justify-between py-1.5 border-b border-dark-border/40 last:border-0 text-xs">
-                    <span class="text-dark-muted">{{ $k }}</span>
-                    <span class="text-dark-text">{{ $v }}</span>
+        {{-- Messages --}}
+        <div class="chat-messages" id="chatMessages">
+            @if($messages->isEmpty())
+                <div class="empty-chat">
+                    <div class="empty-chat-icon">💬</div>
+                    <p style="font-size:15px;font-weight:500;color:#1a1a1a">Démarrez la conversation</p>
+                    <p style="font-size:13px">Envoyez un premier message à {{ $user->name }}</p>
                 </div>
-                @endforeach
-            </div>
-
-            {{-- Agent --}}
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-3">Agent</div>
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-sm bg-dark-card3 border border-dark-border flex items-center justify-center text-xs text-white font-medium">
-                        {{ strtoupper(substr($property->user->name, 0, 2)) }}
-                    </div>
-                    <div>
-                        <p class="text-xs text-dark-text">{{ $property->user->name }}</p>
-                        @if($property->user->phone)
-                        <p class="text-[10px] text-dark-muted">{{ $property->user->phone }}</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            {{-- Formulaire RDV --}}
-            @auth
-            @if(auth()->user()->role === 'client')
-            <div class="bg-dark-card border border-dark-border rounded-sm p-4">
-                <div class="text-[9px] tracking-[.15em] text-dark-dim uppercase mb-3">Demander une visite</div>
-                <form method="POST" action="{{ route('appointments.store') }}" class="flex flex-col gap-2">
-                    @csrf
-                    <input type="hidden" name="property_id" value="{{ $property->id }}">
-                    <input type="hidden" name="agent_id"    value="{{ $property->user_id }}">
-
-                    <input type="date" name="date" required min="{{ now()->addDay()->format('Y-m-d') }}"
-                           class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
-
-                    <input type="time" name="time" required
-                           class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
-
-                    <textarea name="message" rows="2" placeholder="Message optionnel..."
-                              class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm placeholder-dark-dim focus:outline-none focus:border-indigo-700 font-mono resize-none"></textarea>
-
-                    <button type="submit"
-                            class="w-full text-xs bg-indigo-950 border border-indigo-700 text-indigo-300 hover:bg-indigo-900 py-2 rounded-sm transition-colors tracking-widest font-mono mt-1">
-                        PLANIFIER LA VISITE
-                    </button>
-                </form>
-            </div>
-            @endif
             @else
-            <a href="{{ route('login') }}"
-               class="block w-full text-center text-xs border border-indigo-700 text-indigo-400 hover:bg-indigo-950 py-2.5 rounded-sm transition-colors tracking-wider">
-                CONNEXION POUR VISITER
-            </a>
-            @endauth
-
+                @php $prevDate = null; @endphp
+                @foreach($messages as $msg)
+                    @php $date = $msg->created_at->format('Y-m-d'); @endphp
+                    @if($date !== $prevDate)
+                        <div class="date-sep">
+                            {{ $msg->created_at->isToday() ? "Aujourd'hui" : ($msg->created_at->isYesterday() ? 'Hier' : $msg->created_at->format('d/m/Y')) }}
+                        </div>
+                        @php $prevDate = $date; @endphp
+                    @endif
+                    <div class="msg {{ $msg->sender_id === auth()->id() ? 'sent' : '' }}">
+                        <div class="msg-avatar"
+                             style="{{ $msg->sender_id === auth()->id() ? 'background:linear-gradient(135deg,#185FA5,#3a7fc1)' : '' }}">
+                            {{ strtoupper(substr($msg->sender->name, 0, 2)) }}
+                        </div>
+                        <div>
+                            <div class="msg-bubble">{{ $msg->message }}</div>
+                            <div class="msg-time">{{ $msg->created_at->format('H:i') }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
+
+        {{-- Formulaire d'envoi --}}
+        <div class="chat-input-area">
+            <form method="POST" action="{{ route('messages.store') }}" class="chat-input-form">
+                @csrf
+                <input type="hidden" name="receiver_id" value="{{ $user->id }}">
+                <textarea name="message" class="chat-input" rows="1"
+                          placeholder="Écrire un message..." required
+                          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.submit()}"></textarea>
+                <button type="submit" class="send-btn">➤</button>
+            </form>
+        </div>
+
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-// Incrémenter le compteur de vues
-fetch('{{ route('properties.views', $property) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }});
+    // Scroll auto en bas
+    const msgs = document.getElementById('chatMessages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+
+    // Filtre conversations
+    document.getElementById('convSearch')?.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#convList .conv-item').forEach(item => {
+            const name = item.querySelector('.conv-name')?.textContent.toLowerCase() || '';
+            item.style.display = name.includes(q) ? '' : 'none';
+        });
+    });
 </script>
 @endpush
