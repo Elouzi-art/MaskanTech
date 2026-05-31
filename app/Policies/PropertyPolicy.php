@@ -10,7 +10,7 @@ class PropertyPolicy
     // ✅ Admins, agents ET owners peuvent publier des annonces
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'agent', 'owner']);
+        return in_array($user->role, ['admin', 'owner']);
     }
 
     // Seul l'auteur ou l'admin peut modifier

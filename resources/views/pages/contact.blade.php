@@ -118,35 +118,43 @@
             <div class="contact-form-title">Envoyez-nous un message</div>
             <div class="contact-form-sub">Nous vous répondrons dans les plus brefs délais.</div>
 
-            <form>
+            @if(session('success'))
+                <div style="background:#eaf3de;color:#27500A;padding:14px;border-radius:8px;margin-bottom:20px;font-size:14px;">
+                    ✅ {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div style="background:#fff0f0;color:#c00;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+                    @foreach($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form action="{{ route('contact.store') }}" method="POST">
                 @csrf
                 <div class="mk-form-row">
                     <div class="mk-form-group">
-                        <label>Prénom</label>
-                        <input type="text" placeholder="Votre prénom" required>
+                        <label>Nom complet</label>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Votre nom complet" required>
                     </div>
                     <div class="mk-form-group">
-                        <label>Nom</label>
-                        <input type="text" placeholder="Votre nom" required>
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="exemple@email.com" required>
                     </div>
                 </div>
                 <div class="mk-form-group">
-                    <label>Email</label>
-                    <input type="email" placeholder="exemple@email.com" required>
+                    <label>Téléphone</label>
+                    <input type="tel" name="phone" value="{{ old('phone') }}" placeholder="+212 6XX XXX XXX">
                 </div>
                 <div class="mk-form-group">
                     <label>Sujet</label>
-                    <select>
-                        <option>Question générale</option>
-                        <option>Problème technique</option>
-                        <option>Signaler une annonce</option>
-                        <option>Partenariat</option>
-                        <option>Autre</option>
-                    </select>
+                    <input type="text" name="subject" value="{{ old('subject') }}" placeholder="Sujet de votre message" required>
                 </div>
                 <div class="mk-form-group">
                     <label>Message</label>
-                    <textarea rows="5" placeholder="Votre message..."></textarea>
+                    <textarea name="message" rows="5" placeholder="Votre message..." required style="resize:vertical;">{{ old('message') }}</textarea>
                 </div>
                 <button type="submit" class="contact-submit">Envoyer le message</button>
             </form>

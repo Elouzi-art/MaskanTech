@@ -11,17 +11,11 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -31,36 +25,14 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
-    /**
-     * Destroy an authenticated session.
-     * Redirige vers la page précédente (ou / en fallback).
-     */
     public function destroy(Request $request): RedirectResponse
     {
-        // Sauvegarder l'URL courante AVANT d'invalider la session
-        $previousUrl = url()->previous('/');
-
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        // Retour sur la même page, mais jamais vers dashboard/admin (protégés)
-        $safeFallback = route('properties.index');
-        $redirectTo   = $previousUrl ?: $safeFallback;
-
-        // Si l'URL précédente pointe vers une zone authentifiée, rediriger vers /biens
-        $protectedPrefixes = ['/dashboard', '/admin', '/profil', '/favoris', '/rendez-vous', '/messages'];
-        $parsedPath = parse_url($redirectTo, PHP_URL_PATH) ?? '/';
-
-        foreach ($protectedPrefixes as $prefix) {
-            if (str_starts_with($parsedPath, $prefix)) {
-                $redirectTo = $safeFallback;
-                break;
-            }
-        }
-
-        return redirect($redirectTo);
+        return redirect()->route('login');
     }
 }

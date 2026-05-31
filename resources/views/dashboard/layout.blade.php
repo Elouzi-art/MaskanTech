@@ -183,7 +183,7 @@
 <a href="#" class="dash-nav-link">
     <span class="dash-nav-icon">📋</span> Mes annonces
 </a>
-<a href="/publier" class="dash-nav-link">
+<a href="{{ route('properties.create') }}" class="dash-nav-link">
     <span class="dash-nav-icon">➕</span> Publier une annonce
 </a>
 <a href="#" class="dash-nav-link">
@@ -204,9 +204,12 @@
 <a href="#" class="dash-nav-link">
     <span class="dash-nav-icon">⚙️</span> Paramètres
 </a>
-<a href="/login" class="dash-nav-link" style="color:#ff6b6b;">
-    <span class="dash-nav-icon">🚪</span> Déconnexion
-</a>
+<form action="{{ route('logout') }}" method="POST" style="margin:0;">
+    @csrf
+    <button type="submit" class="dash-nav-link" style="color:#ff6b6b;width:100%;border:none;background:none;cursor:pointer;text-align:left;">
+        <span class="dash-nav-icon">🚪</span> Déconnexion
+    </button>
+</form>
         </div>
     </div>
 

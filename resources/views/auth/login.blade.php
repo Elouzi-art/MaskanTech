@@ -1,12 +1,10 @@
 @extends('layouts.maskan')
 
-@section('title', 'MaskanTech — Connexion')
+@section('title', 'MaskanTech – Connexion')
 
 @section('styles')
         body { overflow: hidden; }
         .login-wrap { display: flex; height: 100vh; }
-
-        /* LEFT */
         .left {
             width: 50%; position: relative; overflow: hidden;
             background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=85');
@@ -34,8 +32,6 @@
         }
         .left-title em { color: #E8A855; font-style: normal; }
         .left-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 380px; }
-
-        /* TESTIMONIAL */
         .testimonial {
             margin-top: 32px;
             background: rgba(255,255,255,0.08);
@@ -52,20 +48,15 @@
         }
         .testimonial-name { font-size: 13px; font-weight: 500; color: #fff; }
         .testimonial-role { font-size: 12px; color: rgba(255,255,255,0.5); }
-
-        /* RIGHT */
         .right {
             width: 50%; display: flex; flex-direction: column;
             justify-content: center; padding: 56px;
         }
-
         .form-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
         .form-sub { font-size: 14px; color: #888; margin-bottom: 36px; }
-
         .divider { display: flex; align-items: center; gap: 14px; margin: 24px 0; }
         .divider-line { flex: 1; height: 1px; background: #e8e3db; }
         .divider-text { font-size: 12px; color: #aaa; }
-
         .social-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
         .social-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -76,11 +67,9 @@
         }
         .social-btn:hover { border-color: #C8873A; background: #fdf6ee; }
         .social-btn img { width: 18px; height: 18px; }
-
         .forgot { text-align: right; margin-top: -10px; margin-bottom: 18px; }
         .forgot a { font-size: 13px; color: #C8873A; text-decoration: none; }
         .forgot a:hover { text-decoration: underline; }
-
         .submit-btn {
             width: 100%; padding: 15px;
             background: #1a1a1a; color: #fff; border: none;
@@ -89,9 +78,13 @@
             transition: background 0.2s;
         }
         .submit-btn:hover { background: #C8873A; }
-
         .register-link { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
         .register-link a { color: #C8873A; text-decoration: none; font-weight: 500; }
+        .alert-error {
+            background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000;
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;
+            font-size: 13px; line-height: 1.6;
+        }
 @endsection
 
 @section('head')
@@ -111,7 +104,6 @@
             <div class="left-tag">🇲🇦 MaskanTech</div>
             <h2 class="left-title">Bon retour<br>parmi <em>nous</em> !</h2>
             <p class="left-sub">Connectez-vous et retrouvez vos annonces favorites, vos messages et vos rendez-vous.</p>
-
             <div class="testimonial">
                 <p class="testimonial-text">"Grâce à MaskanTech j'ai trouvé mon appartement à Casablanca en moins d'une semaine. Une plateforme vraiment sérieuse !"</p>
                 <div class="testimonial-author">
@@ -127,7 +119,7 @@
 
     {{-- RIGHT --}}
     <div class="right">
-        <a href="/" class="mk-logo" style="margin-bottom:36px;display:flex;">
+        <a href="{{ route('home') }}" class="mk-logo" style="margin-bottom:36px;display:flex;">
             <div class="mk-logo-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
@@ -157,8 +149,19 @@
             <div class="divider-line"></div>
         </div>
 
-        <form method="POST" action="{{ route('login') }}">
+        {{-- Erreurs --}}
+        @if ($errors->any())
+            <div class="alert-error">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Formulaire connecté au backend --}}
+        <form action="{{ route('login') }}" method="POST">
             @csrf
+
             <div class="mk-form-group">
                 <label>Email</label>
                 <input type="email" name="email" value="{{ old('email') }}" placeholder="exemple@email.com" required>
@@ -170,11 +173,11 @@
             </div>
 
             <div class="forgot">
-                <a href="#">Mot de passe oublié ?</a>
+                <a href="{{ route('password.request') }}">Mot de passe oublié ?</a>
             </div>
 
             <div class="remember">
-                <input type="checkbox" id="remember">
+                <input type="checkbox" name="remember" id="remember">
                 <label for="remember">Se souvenir de moi</label>
             </div>
 
@@ -182,7 +185,7 @@
         </form>
 
         <div class="register-link">
-            Pas encore de compte ? <a href="/register">S'inscrire gratuitement</a>
+            Pas encore de compte ? <a href="{{ route('register') }}">S'inscrire gratuitement</a>
         </div>
     </div>
 

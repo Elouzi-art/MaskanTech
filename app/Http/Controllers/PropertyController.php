@@ -22,7 +22,7 @@ class PropertyController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('properties.index', compact('properties'));
+        return view('pages.properties', compact('properties'));
     }
 
     // ── Formulaire de création ─────────────────────────────────────────────
@@ -32,7 +32,7 @@ class PropertyController extends Controller
         $this->authorize('create', Property::class);
         $features = PropertyFeature::orderBy('name')->get();
 
-        return view('properties.form', [
+        return view('pages.publish', [
             'property' => null,
             'features' => $features,
         ]);
@@ -63,7 +63,7 @@ class PropertyController extends Controller
     {
         $property->load(['images', 'features', 'user', 'favoritedBy']);
 
-        return view('properties.show', compact('property'));
+        return view('pages.property-detail', compact('property'));
     }
 
     // ── Formulaire de modification ────────────────────────────────────────
@@ -73,7 +73,7 @@ class PropertyController extends Controller
         $this->authorize('update', $property);
         $features = PropertyFeature::orderBy('name')->get();
 
-        return view('properties.form', compact('property', 'features'));
+        return view('pages.publish', compact('property', 'features'));
     }
 
     // ── Mise à jour ───────────────────────────────────────────────────────

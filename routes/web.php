@@ -26,6 +26,7 @@ Route::get('/home', function () {
 
 // Liste des biens (publique)
 Route::get('/biens', [PropertyController::class, 'index'])->name('properties.index');
+Route::get('/biens/creer', [PropertyController::class, 'create'])->name('properties.create');
 Route::get('/biens/{property}', [PropertyController::class, 'show'])->name('properties.show');
 
 // Contact
@@ -56,7 +57,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ─── Biens (CRUD — owner / agent / admin) ────────────────────────────
-    Route::get('/biens/creer',           [PropertyController::class, 'create'])->name('properties.create');
     Route::post('/biens',                [PropertyController::class, 'store'])->name('properties.store');
     Route::get('/biens/{property}/modifier', [PropertyController::class, 'edit'])->name('properties.edit');
     Route::put('/biens/{property}',      [PropertyController::class, 'update'])->name('properties.update');
