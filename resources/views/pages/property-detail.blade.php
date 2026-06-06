@@ -1,6 +1,6 @@
 @extends('layouts.maskan')
 
-@section('title', 'MaskanTech — {{ $property->title }}')
+@section('title', 'MaskanTech — ' . $property->title)
 
 @section('styles')
         .detail-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 48px; }
@@ -104,7 +104,7 @@
 
     {{-- BREADCRUMB --}}
     <div class="breadcrumb">
-        <a href="{{ route('home') }}">Accueil</a>
+        <a href="{{ url('/') }}">Accueil</a>
         <span class="breadcrumb-sep">›</span>
         <a href="{{ route('properties.index') }}">Logements</a>
         <span class="breadcrumb-sep">›</span>

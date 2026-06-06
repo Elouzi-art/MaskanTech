@@ -14,7 +14,7 @@ class Property extends Model
         'user_id', 'title', 'slug', 'description', 'price', 'area',
         'type', 'rooms', 'bedrooms', 'bathrooms', 'address', 'city',
         'postal_code', 'year_built', 'status', 'is_featured',
-        'video_url', 'target_audience',
+        'video_url', 'target_audience','approval_status', 'rejection_reason',
         // 'views_count' géré par increment(), pas besoin dans fillable
     ];
 

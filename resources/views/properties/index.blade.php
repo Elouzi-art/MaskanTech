@@ -80,15 +80,7 @@
         @endif
 
         {{-- Tri --}}
-        <div>
-            <label class="text-[9px] tracking-[.1em] text-dark-dim uppercase block mb-1">Trier par</label>
-            <select name="sort" class="w-full bg-dark-card3 border border-dark-border text-dark-text text-xs px-2.5 py-2 rounded-sm focus:outline-none focus:border-indigo-700 font-mono">
-                <option value="latest"     {{ request('sort') === 'latest'     ? 'selected' : '' }}>Plus récents</option>
-                <option value="price_asc"  {{ request('sort') === 'price_asc'  ? 'selected' : '' }}>Loyer croissant</option>
-                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Loyer décroissant</option>
-                <option value="area_desc"  {{ request('sort') === 'area_desc'  ? 'selected' : '' }}>Surface</option>
-            </select>
-        </div>
+       
 
         <button type="submit"
                 class="w-full text-xs border border-indigo-700 text-indigo-400 hover:bg-indigo-950 py-2 rounded-sm transition-colors tracking-widest font-mono">

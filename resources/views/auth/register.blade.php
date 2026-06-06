@@ -146,7 +146,7 @@
 
         <div class="role-label">Je suis</div>
         <div class="roles">
-            <div class="role-btn active" onclick="selectRole('client', this)">
+            <div class="role-btn active" onclick="selectRole('tenant', this)">
                 <div class="role-icon">🏠</div>
                 <div class="role-name">Locataire</div>
                 <div class="role-desc">Je cherche un logement</div>
@@ -173,9 +173,11 @@
         @endif
 
         {{-- Formulaire connecté au backend --}}
-        <form action="{{ route('register') }}" method="POST">
+        <form method="POST"
+      action="{{ route('register') }}"
+      enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="role" id="role-input" value="client">
+            <input type="hidden" name="role" id="role-input" value="tenant">
 
             <div class="mk-form-group">
                 <label>Nom complet</label>
@@ -236,11 +238,11 @@
 @section('scripts')
 <script>
     const roles = {
-        client: {
+        tenant: {
             tag: '🏠 Locataire',
             title: 'Trouvez votre<br><em>chez-vous</em><br>au Maroc',
             sub: 'Des milliers d\'annonces vérifiées partout au Maroc, sans commission.',
-            img: 'client'
+            img: 'tenant'
         },
         student: {
             tag: '🎓 Étudiant',

@@ -1,10 +1,9 @@
 @extends('layouts.maskan')
-@section('title', 'MaskanTech — Logements à louer')
+@section('title', 'MaskanTech – Logements à louer')
 
 @section('styles')
         .page-wrap { display: flex; min-height: calc(100vh - 73px); }
 
-        /* SIDEBAR FILTRES */
         .sidebar {
             width: 280px; min-width: 280px;
             border-right: 1px solid #f0ede8;
@@ -44,22 +43,13 @@
             background: transparent; color: #888; border: 1.5px solid #e8e3db;
             border-radius: 8px; font-size: 13px; cursor: pointer;
             font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-top: 8px;
+            display: block; text-align: center; text-decoration: none;
         }
         .reset-btn:hover { border-color: #C8873A; color: #C8873A; }
 
-        /* MAIN */
         .main { flex: 1; padding: 32px 40px; }
-        .main-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 28px;
-        }
-        .main-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: #1a1a1a; }
-        .main-count { font-size: 14px; color: #888; margin-top: 4px; }
-
-        /* GRID */
         .properties-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 
-        /* PROPERTY CARD */
         .prop-card {
             border-radius: 12px; overflow: hidden;
             border: 1px solid #ede9e3;
@@ -108,39 +98,44 @@
             transition: all 0.2s;
         }
         .prop-btn-outline:hover { border-color: #C8873A; color: #C8873A; }
-
-        /* EMPTY */
-        .empty-state {
-            text-align: center; padding: 80px 20px; color: #888;
-        }
+        .empty-state { text-align: center; padding: 80px 20px; color: #888; }
         .empty-icon { font-size: 64px; margin-bottom: 16px; }
         .empty-text { font-size: 16px; margin-bottom: 8px; color: #1a1a1a; }
         .empty-sub { font-size: 14px; margin-bottom: 24px; }
-
-        /* PAGINATION */
         .pagination-wrap { margin-top: 40px; display: flex; justify-content: center; gap: 8px; }
 @endsection
 
 @section('content')
 <div class="page-wrap">
 
-    {{-- SIDEBAR FILTRES --}}
+    {{-- SIDEBAR --}}
     <div class="sidebar">
         <div class="sidebar-title">Filtrer</div>
 
-        <form method="GET" action="{{ route('properties.index') }}">
+        {{-- ✅ FILTRE ETUDIANTS : lien direct hors formulaire --}}
+        @auth
+        @if(auth()->user()->role === 'student')
+            @if(request('audience') === 'student')
+                <a href="{{ route('properties.index', request()->except('audience')) }}"
+                   style="display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:24px;">
+                    <span style="width:16px;height:16px;background:#C8873A;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <path d="M2 5l2.5 2.5L8 2.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span style="font-size:11px;color:#C8873A;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;">Annonces étudiants uniquement</span>
+                </a>
+            @else
+                <a href="{{ route('properties.index', array_merge(request()->query(), ['audience' => 'student'])) }}"
+                   style="display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:24px;">
+                    <span style="width:16px;height:16px;border:1.5px solid #e8e3db;border-radius:4px;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:11px;color:#888;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;">Annonces étudiants uniquement</span>
+                </a>
+            @endif
+        @endif
+        @endauth
 
-            @auth
-                @if(auth()->user()->role === 'student')
-                <div class="filter-group">
-                    <label class="filter-label">
-                        <input type="checkbox" name="audience" value="student"
-                            {{ request('audience') === 'student' ? 'checked' : '' }}>
-                        Annonces étudiants uniquement
-                    </label>
-                </div>
-                @endif
-            @endauth
+        <form method="GET" action="{{ route('properties.index') }}">
 
             <div class="filter-group">
                 <span class="filter-label">Mot-clé</span>
@@ -184,30 +179,13 @@
             </div>
 
             <button type="submit" class="filter-btn">Appliquer les filtres</button>
-            <a href="{{ route('properties.index') }}" class="reset-btn" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">Réinitialiser</a>
+            <a href="{{ route('properties.index') }}" class="reset-btn">Réinitialiser</a>
+
         </form>
     </div>
 
     {{-- MAIN --}}
     <div class="main">
-        <div class="main-header">
-            <div>
-                <div class="main-title">Logements à louer</div>
-                <div class="main-count">{{ $properties->total() }} annonce(s) trouvée(s)</div>
-            </div>
-            <form method="GET" action="{{ route('properties.index') }}">
-                @foreach(request()->except('sort') as $key => $val)
-                    <input type="hidden" name="{{ $key }}" value="{{ $val }}">
-                @endforeach
-                <select name="sort" class="sort-select" onchange="this.form.submit()">
-                    <option value="" {{ !request('sort') ? 'selected' : '' }}>Plus récents</option>
-                    <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
-                    <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
-                </select>
-            </form>
-        </div>
-
-        {{-- GRILLE DES ANNONCES --}}
         @if($properties->isEmpty())
             <div class="empty-state">
                 <div class="empty-icon">🏠</div>
@@ -220,43 +198,33 @@
                 @foreach($properties as $property)
                 <div class="prop-card">
 
-                    {{-- IMAGE --}}
-                    <div class="prop-img" style="
-                        @if($property->primaryImage)
-                            background-image: url('{{ Storage::url($property->primaryImage->image_path) }}')
-                        @else
-                            background-color: #f0ede8;
-                        @endif
-                    ">
+                    <div class="prop-img" style="{{ $property->primaryImage ? 'background-image: url(' . Storage::url($property->primaryImage->image_path) . ')' : 'background-color:#f0ede8' }}">
                         <div class="prop-badges">
                             <span class="prop-badge">{{ ucfirst($property->type) }}</span>
-                            @if($property->audience === 'student')
+                            @if($property->target_audience === 'student')
                                 <span class="prop-badge prop-badge-student">🎓 Étudiant</span>
                             @endif
                             @if($property->status === 'rented')
                                 <span class="prop-badge prop-badge-gold">Loué</span>
                             @endif
                         </div>
-
-                        {{-- BOUTON FAVORI --}}
                         @auth
-                            <form action="{{ route('favorites.toggle', $property) }}" method="POST" style="position:absolute;top:12px;right:12px;">
-                                @csrf
-                                <button type="submit" class="prop-favorite">
-                                    {{ $property->favoritedBy->contains(auth()->id()) ? '❤️' : '🤍' }}
-                                </button>
-                            </form>
+                        <form action="{{ route('favorites.toggle', $property) }}" method="POST" style="position:absolute;top:12px;right:12px;">
+                            @csrf
+                            <button type="submit" class="prop-favorite">
+                                {{ $property->favoritedBy->contains(auth()->id()) ? '❤️' : '🤍' }}
+                            </button>
+                        </form>
                         @endauth
                     </div>
 
-                    {{-- BODY --}}
                     <div class="prop-body">
                         <div class="prop-price">
                             {{ number_format($property->price, 0, ',', ' ') }} MAD
                             <span>/ mois</span>
                         </div>
                         <div class="prop-title">{{ $property->title }}</div>
-                        <div class="prop-loc">📍 {{ $property->city }} @if($property->area) · {{ $property->area }}m²@endif</div>
+                        <div class="prop-loc">📍 {{ $property->city }}@if($property->area) · {{ $property->area }}m²@endif</div>
                         <div class="prop-details">
                             @if($property->bedrooms)
                                 <span class="prop-detail">🛏 {{ $property->bedrooms }} chambre(s)</span>
@@ -268,21 +236,20 @@
                         <div class="prop-actions">
                             <a href="{{ route('properties.show', $property) }}" class="prop-btn-primary">Voir le détail</a>
                             @auth
-                                <button class="prop-btn-outline" onclick="window.location='{{ route('messages.show', $property->user) }}'">
-                                    💬
-                                </button>
+                            <button class="prop-btn-outline" onclick="window.location='{{ route('messages.show', $property->user) }}'">💬</button>
                             @endauth
                         </div>
                     </div>
+
                 </div>
                 @endforeach
             </div>
 
-            {{-- PAGINATION --}}
             <div class="pagination-wrap">
                 {{ $properties->withQueryString()->links() }}
             </div>
         @endif
     </div>
+
 </div>
 @endsection

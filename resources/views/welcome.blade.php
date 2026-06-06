@@ -180,48 +180,39 @@
     </div>
 
     {{-- ANNONCES --}}
-    <div class="mk-section mk-section-alt">
-        <div class="mk-section-tag">Annonces récentes</div>
-        <div class="mk-section-h2">Logements disponibles maintenant</div>
+<div class="mk-section mk-section-alt">
+    <div class="mk-section-tag">Annonces récentes</div>
+    <div class="mk-section-h2">Logements disponibles maintenant</div>
+
+    @if($recentProperties->count() > 0)
         <div class="cards">
-            <div class="mk-card">
-                <div class="card-img img-1">
-                    <span class="card-badge">Studio</span>
-                    <span class="card-student">🎓 Étudiant</span>
-                </div>
-                <div class="card-body">
-                    <div class="card-price">2 500 MAD <span>/ mois</span></div>
-                    <div class="card-title">Studio meublé — Guéliz</div>
-                    <div class="card-loc">📍 Marrakech · 35m²</div>
-                    <a href="/biens" class="card-btn">Voir l'annonce</a>
-                </div>
-            </div>
-            <div class="mk-card">
-                <div class="card-img img-2">
-                    <span class="card-badge">Appartement</span>
-                </div>
-                <div class="card-body">
-                    <div class="card-price">4 200 MAD <span>/ mois</span></div>
-                    <div class="card-title">Appartement F2 moderne</div>
-                    <div class="card-loc">📍 Casablanca · 65m²</div>
-                    <a href="/biens" class="card-btn">Voir l'annonce</a>
-                </div>
-            </div>
-            <div class="mk-card">
-                <div class="card-img img-3">
-                    <span class="card-badge">Colocation</span>
-                    <span class="card-student">🎓 Étudiant</span>
-                </div>
-                <div class="card-body">
-                    <div class="card-price">1 200 MAD <span>/ mois</span></div>
-                    <div class="card-title">Chambre en colocation</div>
-                    <div class="card-loc">📍 Rabat · 18m²</div>
-                    <a href="/biens" class="card-btn">Voir l'annonce</a>
-                </div>
-            </div>
+            @foreach($recentProperties as $property)
+    <div class="mk-card">
+        <div class="card-img" style="background-image:url('{{ $property->image_url ?? 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80' }}')">
+            <span class="card-badge">{{ ucfirst($property->type) }}</span>
+            @if(in_array($property->type, ['student', 'colocation']) || str_contains(strtolower($property->title ?? ''), 'étudiant') || str_contains(strtolower($property->title ?? ''), 'universi'))
+                <span class="card-student">🎓 Étudiant</span>
+            @endif
+        </div>
+        <div class="card-body">
+            <div class="card-price">{{ number_format($property->price, 0, ',', ' ') }} MAD <span>/ mois</span></div>
+            <div class="card-title">{{ $property->title }}</div>
+            <div class="card-loc">📍 {{ $property->city }}@if($property->surface) · {{ $property->surface }}m²@endif</div>
+            <a href="{{ route('properties.show', $property) }}" class="card-btn">Voir l'annonce</a>
         </div>
     </div>
-
+@endforeach
+        </div>
+    @else
+        {{-- Fallback si aucune annonce en base --}}
+        <div style="text-align:center; padding:48px; color:#888;">
+            <div style="font-size:48px; margin-bottom:16px;">🏠</div>
+            <div style="font-size:16px; font-weight:500; margin-bottom:8px;">Aucune annonce disponible pour l'instant</div>
+            <div style="font-size:14px;">Soyez le premier à publier une annonce !</div>
+            <a href="{{ route('properties.create') }}" class="mk-btn-gold" style="display:inline-block; margin-top:20px;">Publier une annonce</a>
+        </div>
+    @endif
+</div>
     {{-- FEATURES --}}
     <div class="mk-section">
         <div class="mk-section-tag">Pourquoi nous ?</div>

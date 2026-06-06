@@ -11,8 +11,10 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'phone', 'address', 'avatar',
-    ];
+    'name', 'email', 'password', 'role', 'phone', 'address',
+    'university', 'field_of_study', 'cin_document', 'avatar',
+    'is_verified', 'verified_at',
+];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -21,6 +23,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
+            'is_verified' => 'boolean',
+'verified_at' => 'datetime',
         ];
     }
 
@@ -28,7 +32,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool   { return $this->role === 'admin'; }
     public function isAgent(): bool   { return $this->role === 'agent'; }
-    public function isClient(): bool  { return $this->role === 'client'; }
+    public function isClient(): bool  { return $this->role === 'tenant'; }
     public function isStudent(): bool { return $this->role === 'student'; }
     /** Un propriétaire peut aussi louer (accès favoris + RDV comme client) */
     public function isOwner(): bool   { return $this->role === 'owner'; }
@@ -39,7 +43,7 @@ class User extends Authenticatable
      */
     public function canRent(): bool
     {
-        return in_array($this->role, ['client', 'student', 'owner']);
+        return in_array($this->role, ['tenant', 'student', 'owner']);
     }
 
     /**
@@ -50,7 +54,7 @@ class User extends Authenticatable
         return match ($this->role) {
             'admin' => 'Administrateur',
             'agent' => 'Agent',
-            'client' => 'Locataire',
+            'tenant' => 'Locataire',
             'student' => 'Étudiant',
             'owner' => 'Propriétaire',
             default => ucfirst($this->role),

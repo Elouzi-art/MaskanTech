@@ -32,7 +32,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-body); background: var(--white); color: var(--dark); }
 
-        /* ===== NAVBAR ===== */
+        /* ===== NAVBAR BASE ===== */
         .mk-nav {
             display: flex; align-items: center; justify-content: space-between;
             padding: 18px 48px;
@@ -59,6 +59,93 @@
             font-size: 13px; font-weight: 500; transition: background 0.2s !important;
         }
         .mk-nav-cta:hover { background: var(--gold) !important; }
+
+        /* ===== USER DROPDOWN (connecté) ===== */
+        .mk-user-menu { position: relative; }
+        .mk-user-trigger {
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer; padding: 6px 10px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--gray-border);
+            background: var(--white);
+            transition: border-color 0.2s, background 0.2s;
+            user-select: none;
+        }
+        .mk-user-trigger:hover { border-color: var(--gold); background: var(--gold-bg); }
+        .mk-user-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold-border);
+            flex-shrink: 0;
+        }
+        .mk-user-info { display: flex; flex-direction: column; line-height: 1.2; }
+        .mk-user-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+        .mk-user-role {
+            font-size: 11px; color: var(--gold);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .mk-user-chevron {
+            width: 14px; height: 14px; color: #888;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .mk-user-menu.open .mk-user-chevron { transform: rotate(180deg); }
+
+        .mk-dropdown {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--white);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            min-width: 220px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-8px);
+            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+            z-index: 200;
+            overflow: hidden;
+        }
+        .mk-user-menu.open .mk-dropdown {
+            opacity: 1; visibility: visible; transform: translateY(0);
+        }
+
+        .mk-dropdown-header {
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid var(--gray-light);
+            background: var(--gold-bg);
+        }
+        .mk-dropdown-header .dd-name { font-size: 14px; font-weight: 500; color: var(--dark); }
+        .mk-dropdown-header .dd-email { font-size: 12px; color: var(--gray); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .mk-dropdown-body { padding: 6px 0; }
+        .mk-dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
+            font-size: 13px; color: #444;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .mk-dropdown-item:hover { background: var(--gold-bg); color: var(--gold); }
+        .mk-dropdown-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+        .mk-dropdown-item:hover svg { opacity: 1; }
+
+        .mk-dropdown-divider { height: 1px; background: var(--gray-light); margin: 4px 0; }
+
+        .mk-dropdown-item.danger { color: #c0392b; }
+        .mk-dropdown-item.danger:hover { background: #fef2f2; color: #c0392b; }
+        .mk-dropdown-item.danger svg { color: #c0392b; opacity: 0.8; }
+
+        .mk-logout-form { margin: 0; }
+        .mk-logout-btn {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; padding: 10px 16px;
+            font-size: 13px; color: #c0392b;
+            background: none; border: none; cursor: pointer;
+            font-family: var(--font-body);
+            text-align: left;
+            transition: background 0.15s;
+        }
+        .mk-logout-btn:hover { background: #fef2f2; }
+        .mk-logout-btn svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
 
         /* ===== BUTTONS ===== */
         .mk-btn-gold {
@@ -134,6 +221,16 @@
         .mk-footer-logo span { color: var(--gold); }
         .mk-footer-copy { font-size: 13px; color: #444; }
 
+        /* ===== FOOTER CONNECTÉ (épuré) ===== */
+        .mk-footer-minimal {
+            background: var(--dark-2);
+            padding: 20px 48px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid #222;
+        }
+        .mk-footer-minimal .mk-footer-logo { font-size: 16px; }
+        .mk-footer-minimal .mk-footer-copy { font-size: 12px; color: #333; }
+
         /* ===== BADGE ===== */
         .mk-badge {
             display: inline-block; font-size: 11px; font-weight: 500;
@@ -145,13 +242,18 @@
 
         @yield('styles')
     </style>
+
+    {{-- Styles additionnels via @push('styles') --}}
+    @stack('styles')
+
     @yield('head')
 </head>
 <body>
 
     {{-- NAVBAR --}}
+    @guest
     <nav class="mk-nav">
-        <a class="mk-logo" href="/">
+        <a class="mk-logo" href="{{ url('/') }}">
             <div class="mk-logo-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
@@ -161,33 +263,157 @@
             <span class="mk-logo-text">Maskan<span>Tech</span></span>
         </a>
         <div class="mk-nav-links">
-    <a href="/biens">Logements</a>
-    <a href="/etudiants">Étudiants</a>
-    <a href="/proprietaires">Propriétaires</a>
-    <a href="/a-propos">À propos</a>
-    <a href="/login">Connexion</a>
-    <a href="/register" class="mk-nav-cta">S'inscrire</a>
-</div>
+            <a href="{{ url('/biens') }}">Logements</a>
+            <a href="{{ url('/etudiants') }}">Étudiants</a>
+            <a href="{{ url('/proprietaires') }}">Propriétaires</a>
+            <a href="{{ url('/a-propos') }}">À propos</a>
+            <a href="{{ route('login') }}">Connexion</a>
+            <a href="{{ route('register') }}" class="mk-nav-cta">S'inscrire</a>
+        </div>
     </nav>
 
-    {{-- CONTENU --}}
+    @else
+    <nav class="mk-nav">
+        <a class="mk-logo" href="{{ url('/') }}">
+            <div class="mk-logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+                    <path d="M9 21V12h6v9"/>
+                </svg>
+            </div>
+            <span class="mk-logo-text">Maskan<span>Tech</span></span>
+        </a>
+
+        <div class="mk-nav-links">
+            <a href="{{ url('/biens') }}">Logements</a>
+            <a href="{{ url('/a-propos') }}">À propos</a>
+            <a href="{{ url('/blog') }}">Blog</a>
+            <a href="{{ url('/contact') }}">Contact</a>
+            <a href="{{ route('dashboard') }}" style="color: var(--gold); font-weight: 500;">Tableau de bord</a>
+
+            <div class="mk-user-menu" id="userMenu">
+                <div class="mk-user-trigger" onclick="toggleUserMenu()">
+                    <img
+                        src="{{ auth()->user()->avatar_url }}"
+                        alt="{{ auth()->user()->name }}"
+                        class="mk-user-avatar"
+                        onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=C8873A&color=fff&size=68'"
+                    >
+                    <div class="mk-user-info">
+                        <span class="mk-user-name">{{ Str::limit(auth()->user()->name, 18) }}</span>
+                        <span class="mk-user-role">{{ auth()->user()->role_label }}</span>
+                    </div>
+                    <svg class="mk-user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+
+                <div class="mk-dropdown">
+                    <div class="mk-dropdown-header">
+                        <div class="dd-name">{{ auth()->user()->name }}</div>
+                        <div class="dd-email">{{ auth()->user()->email }}</div>
+                    </div>
+
+                    <div class="mk-dropdown-body">
+                        <a href="{{ route('dashboard') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Tableau de bord
+                        </a>
+
+                        <a href="{{ route('profile.edit') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                            Mon profil
+                        </a>
+
+                        @if(auth()->user()->canRent())
+                        <a href="{{ route('favorites.index') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                            Mes favoris
+                        </a>
+                        @endif
+
+                        <a href="{{ route('messages.index') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            Messages
+                            @if(auth()->user()->unread_messages_count > 0)
+                                <span style="margin-left:auto;background:var(--gold);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;">
+                                    {{ auth()->user()->unread_messages_count }}
+                                </span>
+                            @endif
+                        </a>
+
+                        <a href="{{ route('appointments.index') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Rendez-vous
+                        </a>
+
+                        @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.users') }}" class="mk-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            Administration
+                        </a>
+                        @endif
+
+                        <div class="mk-dropdown-divider"></div>
+
+                        <form method="POST" action="{{ route('logout') }}" class="mk-logout-form">
+                            @csrf
+                            <button type="submit" class="mk-logout-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Déconnexion
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    @endguest
+
     @yield('content')
 
-    {{-- FOOTER --}}
+    @guest
     <footer class="mk-footer">
-    <div class="mk-footer-logo">Maskan<span>Tech</span></div>
-    <div style="display:flex;gap:32px;">
-        <a href="/biens" style="color:#444;font-size:13px;text-decoration:none;">Logements</a>
-        <a href="/etudiants" style="color:#444;font-size:13px;text-decoration:none;">Étudiants</a>
-        <a href="/proprietaires" style="color:#444;font-size:13px;text-decoration:none;">Propriétaires</a>
-        <a href="/blog" style="color:#444;font-size:13px;text-decoration:none;">Blog</a>
-        <a href="/a-propos" style="color:#444;font-size:13px;text-decoration:none;">À propos</a>
-        <a href="/contact" style="color:#444;font-size:13px;text-decoration:none;">Contact</a>
-    </div>
-    <div class="mk-footer-copy">© 2026 — Hajar Tanani & Salmane Elouzi</div>
-</footer>
+        <div class="mk-footer-logo">Maskan<span>Tech</span></div>
+        <div style="display:flex;gap:32px;">
+            <a href="{{ url('/biens') }}" style="color:#444;font-size:13px;text-decoration:none;">Logements</a>
+            <a href="{{ url('/etudiants') }}" style="color:#444;font-size:13px;text-decoration:none;">Étudiants</a>
+            <a href="{{ url('/proprietaires') }}" style="color:#444;font-size:13px;text-decoration:none;">Propriétaires</a>
+            <a href="{{ url('/blog') }}" style="color:#444;font-size:13px;text-decoration:none;">Blog</a>
+            <a href="{{ url('/a-propos') }}" style="color:#444;font-size:13px;text-decoration:none;">À propos</a>
+            <a href="{{ url('/contact') }}" style="color:#444;font-size:13px;text-decoration:none;">Contact</a>
+        </div>
+        <div class="mk-footer-copy">© {{ date('Y') }} — Hajar Tanani & Salmane Elouzi</div>
+    </footer>
+
+    @else
+    <footer class="mk-footer-minimal">
+        <div class="mk-footer-logo">Maskan<span>Tech</span></div>
+        <div style="display:flex;gap:24px;align-items:center;">
+            <a href="{{ url('/biens') }}" style="color:#444;font-size:12px;text-decoration:none;">Logements</a>
+            <a href="{{ url('/contact') }}" style="color:#444;font-size:12px;text-decoration:none;">Contact</a>
+            <a href="{{ url('/a-propos') }}" style="color:#444;font-size:12px;text-decoration:none;">À propos</a>
+        </div>
+        <div class="mk-footer-copy">© {{ date('Y') }} MaskanTech</div>
+    </footer>
+    @endguest
 
     @yield('scripts')
+    @stack('scripts')
+
+    @auth
+    <script>
+        function toggleUserMenu() {
+            document.getElementById('userMenu').classList.toggle('open');
+        }
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('userMenu');
+            if (menu && !menu.contains(e.target)) {
+                menu.classList.remove('open');
+            }
+        });
+    </script>
+    @endauth
 
 </body>
 </html>

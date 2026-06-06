@@ -12,17 +12,25 @@ class AppointmentController extends Controller
 {
     /**
      * Liste des rendez-vous selon le rôle.
+     * L'admin n'a pas de vue dédiée pour l'instant → redirigé vers son panel.
      */
     public function index()
     {
         $user = Auth::user();
 
+        // L'admin est redirigé vers son panel, pas vers la vue client
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard')
+                             ->with('info', 'La gestion des rendez-vous admin est en cours de développement.');
+        }
+
         $appointments = match ($user->role) {
-            'admin' => Appointment::with(['property', 'client', 'agent'])->latest()->paginate(20),
             'agent' => Appointment::where('agent_id', $user->id)
                             ->with(['property', 'client'])
                             ->latest()->paginate(20),
-            default => $user->appointmentsAsClient()->with(['property', 'agent'])->latest()->paginate(20),
+            default => $user->appointmentsAsClient()
+                            ->with(['property', 'agent'])
+                            ->latest()->paginate(20),
         };
 
         return view('appointments.index', compact('appointments'));
@@ -45,28 +53,26 @@ class AppointmentController extends Controller
             'status'      => 'pending',
         ]);
 
-        // TODO: dispatch AppointmentRequested event → email agent + client
-
         return back()->with('success', 'Votre demande de visite a été envoyée.');
     }
 
     /**
-     * Changer le statut (agent/admin).
+     * Changer le statut (propriétaire / agent / admin).
      */
     public function updateStatus(Request $request, Appointment $appointment)
     {
         $request->validate(['status' => 'required|in:confirmed,refused,completed']);
-
         $user = Auth::user();
 
-        // Seul l'agent concerné ou un admin peut modifier
-        if ($user->isClient() || ($user->isAgent() && $appointment->agent_id !== $user->id)) {
+        $isPropertyOwner = $appointment->property->user_id === $user->id;
+
+        if (! ($user->isAdmin()
+            || ($user->isAgent() && $appointment->agent_id === $user->id)
+            || $isPropertyOwner)) {
             abort(403);
         }
 
         $appointment->update(['status' => $request->status]);
-
-        // TODO: dispatch AppointmentStatusChanged event → email client
 
         return back()->with('success', 'Statut du rendez-vous mis à jour.');
     }
@@ -79,7 +85,7 @@ class AppointmentController extends Controller
         $user = Auth::user();
 
         if ($user->isClient() && $appointment->client_id !== $user->id) abort(403);
-        if ($user->isAgent() && $appointment->agent_id !== $user->id) abort(403);
+        if ($user->isAgent()  && $appointment->agent_id  !== $user->id) abort(403);
 
         $appointment->delete();
 

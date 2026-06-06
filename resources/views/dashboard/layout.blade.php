@@ -1,66 +1,98 @@
 @extends('layouts.maskan')
 
-@section('styles')
-/* DASHBOARD WRAP */
+@push('styles')
+<style>
+/* ═══════════════════════════════════════
+   DASHBOARD WRAP
+═══════════════════════════════════════ */
 .dashboard-wrap {
     display: flex;
     min-height: calc(100vh - 73px);
 }
 
-/* SIDEBAR */
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
 .dash-sidebar {
-    width: 260px; min-width: 260px;
-    background: #1a1a1a;
-    padding: 32px 0;
+    width: 250px; min-width: 250px;
+    background: #fff;
+    border-right: 1px solid #ede9e3;
+    padding: 28px 0;
     position: sticky; top: 73px;
     height: calc(100vh - 73px);
     overflow-y: auto;
 }
+
+/* USER BLOCK */
 .dash-user {
-    padding: 0 24px 28px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    margin-bottom: 24px;
+    padding: 0 20px 24px;
+    border-bottom: 1px solid #f0ede8;
+    margin-bottom: 8px;
+    text-align: left;
 }
-.dash-avatar {
-    width: 52px; height: 52px; border-radius: 50%;
+.dash-avatar-wrap { margin-bottom: 12px; }
+.dash-avatar-img {
+    width: 64px; height: 64px; border-radius: 50%;
+    object-fit: cover; border: 3px solid #f0ede8;
+    transition: opacity 0.2s;
+}
+.dash-avatar-img:hover { opacity: 0.85; }
+.dash-avatar-initials {
+    width: 64px; height: 64px; border-radius: 50%;
     background: linear-gradient(135deg, #C8873A, #E8A855);
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; font-weight: 700; color: #fff;
-    margin-bottom: 12px;
+    font-size: 22px; font-weight: 700; color: #fff;
+    border: 3px solid #f0ede8;
 }
-.dash-name { font-size: 15px; font-weight: 500; color: #fff; }
+.dash-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
 .dash-role {
-    display: inline-block; font-size: 11px; font-weight: 500;
-    padding: 3px 10px; border-radius: 20px; margin-top: 6px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
 }
-.dash-role-tenant { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
-.dash-role-student { background: rgba(24,95,165,0.3); color: #7ab3e0; }
-.dash-role-owner { background: rgba(200,135,58,0.3); color: #E8A855; }
-.dash-role-admin { background: rgba(220,50,50,0.3); color: #ff8080; }
+.dash-role-tenant  { background: #f0ede8; color: #666; }
+.dash-role-student { background: #e6f1fb; color: #185FA5; }
+.dash-role-owner   { background: #fdf6ee; color: #C8873A; }
+.dash-role-agent   { background: #eaf3de; color: #27500A; }
+.dash-role-admin   { background: #fff0f0; color: #dc3545; }
 
-/* NAV LINKS */
+/* NAV */
 .dash-nav { padding: 0 12px; }
 .dash-nav-section {
-    font-size: 10px; color: rgba(255,255,255,0.3);
+    font-size: 10px; color: #aaa;
     letter-spacing: 2px; text-transform: uppercase;
-    padding: 0 12px; margin-bottom: 8px; margin-top: 20px;
+    font-weight: 600; padding: 16px 8px 6px;
 }
 .dash-nav-link {
     display: flex; align-items: center; gap: 12px;
-    padding: 11px 12px; border-radius: 8px;
-    text-decoration: none; font-size: 14px; color: rgba(255,255,255,0.6);
-    transition: all 0.2s; margin-bottom: 2px;
+    padding: 10px 12px; border-radius: 8px;
+    text-decoration: none; font-size: 13.5px;
+    color: #555; font-weight: 400;
+    transition: all 0.15s; margin-bottom: 1px;
+    background: none; border: none; cursor: pointer;
+    width: 100%; text-align: left; font-family: 'DM Sans', sans-serif;
 }
-.dash-nav-link:hover { background: rgba(255,255,255,0.07); color: #fff; }
-.dash-nav-link.active { background: rgba(200,135,58,0.2); color: #E8A855; }
-.dash-nav-icon { font-size: 18px; width: 20px; text-align: center; }
+.dash-nav-link:hover { background: #fdf6ee; color: #C8873A; }
+.dash-nav-link.active { background: #fdf6ee; color: #C8873A; font-weight: 500; }
+.dash-nav-icon {
+    width: 20px; height: 20px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #aaa; transition: color 0.15s;
+}
+.dash-nav-link:hover .dash-nav-icon,
+.dash-nav-link.active .dash-nav-icon { color: #C8873A; }
 .dash-nav-badge {
     margin-left: auto; background: #C8873A; color: #fff;
-    font-size: 11px; font-weight: 600; padding: 2px 7px;
+    font-size: 10px; font-weight: 600; padding: 2px 7px;
     border-radius: 10px;
 }
+.dash-nav-logout { color: #dc3545 !important; }
+.dash-nav-logout:hover { background: #fff0f0 !important; color: #dc3545 !important; }
+.dash-nav-logout .dash-nav-icon { color: #dc3545 !important; }
 
-/* MAIN */
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
 .dash-main { flex: 1; padding: 36px 40px; background: #f8f7f4; }
 .dash-header { margin-bottom: 32px; }
 .dash-title {
@@ -103,9 +135,7 @@
     font-family: 'Playfair Display', serif;
     font-size: 18px; font-weight: 700; color: #1a1a1a;
 }
-.dash-section-link {
-    font-size: 13px; color: #C8873A; text-decoration: none; font-weight: 500;
-}
+.dash-section-link { font-size: 13px; color: #C8873A; text-decoration: none; font-weight: 500; }
 .dash-section-link:hover { text-decoration: underline; }
 
 /* TABLE */
@@ -124,92 +154,213 @@
 .dash-table tr:hover td { background: #fafaf8; }
 
 /* EMPTY STATE */
-.dash-empty {
-    text-align: center; padding: 48px 20px;
-    color: #888; font-size: 14px;
-}
+.dash-empty { text-align: center; padding: 48px 20px; color: #888; font-size: 14px; }
 .dash-empty-icon { font-size: 48px; margin-bottom: 16px; }
 .dash-empty-text { margin-bottom: 20px; }
-@endsection
+</style>
+@endpush
 
 @section('content')
 <div class="dashboard-wrap">
 
-    {{-- SIDEBAR --}}
+    {{-- ══════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════ --}}
     <div class="dash-sidebar">
+
+        {{-- AVATAR + NOM + BADGE --}}
         <div class="dash-user">
-            <div class="dash-avatar">
-                {{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'U' }}
+            <div class="dash-avatar-wrap">
+                <a href="{{ route('profile.edit') }}" style="text-decoration:none;">
+                    @if(auth()->user()->avatar)
+                        <img class="dash-avatar-img"
+                             src="{{ Storage::url(auth()->user()->avatar) }}"
+                             alt="{{ auth()->user()->name }}">
+                    @else
+                        <div class="dash-avatar-initials">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        </div>
+                    @endif
+                </a>
             </div>
-            <div class="dash-name">
-                {{ auth()->check() ? auth()->user()->name : 'Utilisateur' }}
-            </div>
-            @auth
-                @if(auth()->user()->role === 'admin')
-                    <span class="dash-role dash-role-admin">👑 Admin</span>
-                @elseif(auth()->user()->role === 'owner')
-                    <span class="dash-role dash-role-owner">🏠 Propriétaire</span>
-                @elseif(auth()->user()->role === 'student')
-                    <span class="dash-role dash-role-student">🎓 Étudiant</span>
-                @else
-                    <span class="dash-role dash-role-tenant">👤 Locataire</span>
-                @endif
-            @endauth
+
+            <div class="dash-name">{{ auth()->user()->name }}</div>
+
+            @if(auth()->user()->role === 'admin')
+                <span class="dash-role dash-role-admin">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    Admin
+                </span>
+            @elseif(auth()->user()->role === 'owner')
+                <span class="dash-role dash-role-owner">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>
+                    Propriétaire
+                </span>
+            @elseif(auth()->user()->role === 'agent')
+                <span class="dash-role dash-role-agent">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Agent
+                </span>
+            @elseif(auth()->user()->role === 'student')
+                <span class="dash-role dash-role-student">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    Étudiant
+                </span>
+            @else
+                <span class="dash-role dash-role-tenant">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Locataire
+                </span>
+            @endif
         </div>
 
+        {{-- NAV --}}
         <div class="dash-nav">
-            {{-- COMMUN À TOUS --}}
+
             <div class="dash-nav-section">Principal</div>
-            {{-- COMMUN À TOUS --}}
-<a href="/dashboard" class="dash-nav-link active">
-    <span class="dash-nav-icon">🏠</span> Tableau de bord
-</a>
-<a href="/biens" class="dash-nav-link">
-    <span class="dash-nav-icon">🔍</span> Rechercher
-</a>
-<a href="#" class="dash-nav-link">
-    <span class="dash-nav-icon">❤️</span> Mes favoris
-</a>
 
-<a href="/messages" class="dash-nav-link">
-    <span class="dash-nav-icon">💬</span> Messages
-    <span class="dash-nav-badge">3</span>
-</a>
-<a href="/rendez-vous" class="dash-nav-link">
-    <span class="dash-nav-icon">📅</span> Rendez-vous
-</a>
+            <a href="{{ route('dashboard') }}"
+               class="dash-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <span class="dash-nav-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                </span>
+                Tableau de bord
+            </a>
 
-{{-- PROPRIÉTAIRE --}}
-<a href="#" class="dash-nav-link">
-    <span class="dash-nav-icon">📋</span> Mes annonces
-</a>
-<a href="{{ route('properties.create') }}" class="dash-nav-link">
-    <span class="dash-nav-icon">➕</span> Publier une annonce
-</a>
-<a href="#" class="dash-nav-link">
-    <span class="dash-nav-icon">📊</span> Statistiques
-</a>
+            <a href="{{ route('properties.index') }}"
+               class="dash-nav-link {{ request()->routeIs('properties.index') ? 'active' : '' }}">
+                <span class="dash-nav-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                </span>
+                Rechercher un logement
+            </a>
 
-{{-- ADMIN --}}
-<a href="/admin" class="dash-nav-link">
-    <span class="dash-nav-icon">👥</span> Utilisateurs
-</a>
-<a href="/biens" class="dash-nav-link">
-    <span class="dash-nav-icon">🏘️</span> Toutes les annonces
-</a>
-<a href="#" class="dash-nav-link">
-    <span class="dash-nav-icon">⚠️</span> Signalements
-</a>
+            @if(in_array(auth()->user()->role, ['tenant', 'student']))
+                <div class="dash-nav-section">Mon espace</div>
 
-<a href="#" class="dash-nav-link">
-    <span class="dash-nav-icon">⚙️</span> Paramètres
-</a>
-<form action="{{ route('logout') }}" method="POST" style="margin:0;">
-    @csrf
-    <button type="submit" class="dash-nav-link" style="color:#ff6b6b;width:100%;border:none;background:none;cursor:pointer;text-align:left;">
-        <span class="dash-nav-icon">🚪</span> Déconnexion
-    </button>
-</form>
+                <a href="{{ route('favorites.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('favorites.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                    </span>
+                    Mes favoris
+                </a>
+
+                <a href="{{ route('appointments.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    </span>
+                    Mes rendez-vous
+                </a>
+
+                <a href="{{ route('messages.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    </span>
+                    Messages
+                    @if(auth()->user()->unread_messages_count > 0)
+                        <span class="dash-nav-badge">{{ auth()->user()->unread_messages_count }}</span>
+                    @endif
+                </a>
+            @endif
+
+            @if(in_array(auth()->user()->role, ['owner', 'agent', 'admin']))
+                <div class="dash-nav-section">Mes annonces</div>
+
+                <a href="{{ route('favorites.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('favorites.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                    </span>
+                    Mes favoris
+                </a>
+
+                <a href="{{ route('properties.index', ['my' => 1]) }}"
+                   class="dash-nav-link">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+                    </span>
+                    Mes annonces
+                </a>
+
+                <a href="{{ route('properties.create') }}"
+                   class="dash-nav-link {{ request()->routeIs('properties.create','properties.edit') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                    </span>
+                    Publier une annonce
+                </a>
+
+                <a href="{{ route('appointments.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    </span>
+                    Rendez-vous reçus
+                </a>
+
+                <a href="{{ route('messages.index') }}"
+                   class="dash-nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    </span>
+                    Messages
+                    @if(auth()->user()->unread_messages_count > 0)
+                        <span class="dash-nav-badge">{{ auth()->user()->unread_messages_count }}</span>
+                    @endif
+                </a>
+            @endif
+
+            @if(auth()->user()->isAdmin())
+                <div class="dash-nav-section">Administration</div>
+
+                <a href="{{ route('admin.users') }}"
+                   class="dash-nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                    </span>
+                    Utilisateurs
+                </a>
+
+                <a href="{{ route('admin.properties') }}"
+                   class="dash-nav-link {{ request()->routeIs('admin.properties*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>
+                    </span>
+                    Toutes les annonces
+                </a>
+
+                <a href="{{ route('admin.contacts') }}"
+                   class="dash-nav-link {{ request()->routeIs('admin.contacts*') ? 'active' : '' }}">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </span>
+                    Messages de contact
+                </a>
+            @endif
+
+            <div class="dash-nav-section">Compte</div>
+
+            <a href="{{ route('profile.edit') }}"
+               class="dash-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                <span class="dash-nav-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                Mon profil
+            </a>
+
+            <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="dash-nav-link dash-nav-logout">
+                    <span class="dash-nav-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    </span>
+                    Déconnexion
+                </button>
+            </form>
+
         </div>
     </div>
 

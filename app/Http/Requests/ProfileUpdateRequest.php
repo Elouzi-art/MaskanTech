@@ -18,6 +18,7 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'phone'   => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
+            'avatar'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }

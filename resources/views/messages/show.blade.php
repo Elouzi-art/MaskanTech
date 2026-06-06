@@ -1,8 +1,9 @@
 @extends('dashboard.layout')
 
-@section('title', 'Conversation avec {{ $user->name }}')
+@section('title', 'Conversation avec ' . $user->name)
 
-@section('styles')
+@push('styles')
+<style>
 .conversation-wrap { display: flex; flex-direction: column; height: calc(100vh - 200px); }
 .conv-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #f0ede8; }
 .conv-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#C8873A,#E8A855); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; }
@@ -19,7 +20,8 @@
 .conv-input:focus { border-color: #C8873A; }
 .conv-send { padding: 13px 24px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
 .conv-send:hover { background: #C8873A; }
-@endsection
+</style>
+@endpush
 
 @section('dashboard-content')
 
@@ -63,10 +65,9 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-    // Scroll automatique vers le bas
     const list = document.getElementById('messages-list');
     if (list) list.scrollTop = list.scrollHeight;
 </script>
-@endsection
+@endpush

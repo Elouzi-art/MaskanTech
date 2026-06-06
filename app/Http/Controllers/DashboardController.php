@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -12,58 +13,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return match (Auth::user()->role) {
-            'admin'   => $this->admin(),
+        $user = Auth::user();
+
+        // L'admin a son propre panel séparé
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return match ($user->role) {
+            'agent'   => $this->agent(),
             'owner'   => $this->owner(),
             'student' => $this->student(),
-            default   => $this->tenant(), // client
+            default   => $this->tenant(),
         };
-    }
-
-    private function admin()
-    {
-        $stats = [
-            'total_properties'     => Property::count(),
-            'total_users'          => User::count(),
-            'rented_properties'    => Property::where('status', 'rented')->count(),
-            'available_properties' => Property::where('status', 'available')->count(),
-            'appointments_month'   => Appointment::whereMonth('created_at', now()->month)->count(),
-            'pending_appointments' => Appointment::where('status', 'pending')->count(),
-            'unread_messages'      => Message::where('is_read', false)->count(),
-            'active_agents'        => User::where('role', 'agent')->count(),
-            'new_this_month'       => Property::whereMonth('created_at', now()->month)->count(),
-            'total_students'       => User::where('role', 'student')->count(),
-            'total_owners'         => User::where('role', 'owner')->count(),
-        ];
-
-        $months      = collect(range(11, 0))->map(fn($m) => now()->subMonths($m));
-        $chartLabels = $months->map(fn($d) => $d->format('M'))->toArray();
-        $chartData   = $months->map(fn($d) =>
-            Property::whereYear('created_at', $d->year)
-                    ->whereMonth('created_at', $d->month)
-                    ->count()
-        )->toArray();
-
-        $recentActivity = Property::with('user')
-            ->latest()
-            ->limit(20)
-            ->get()
-            ->map(fn($p) => [
-                'type'   => $p->status === 'rented' ? 'loué' : 'nouveau',
-                'title'  => $p->title,
-                'sub'    => $p->city . ' — ' . $p->user->name,
-                'time'   => $p->created_at->format('H:i'),
-                'agent'  => $p->user->name,
-                'city'   => $p->city,
-                'status' => $p->status,
-            ]);
-
-        $activeAgents = User::where('role', 'agent')->limit(10)->get();
-        $alerts       = collect();
-
-        return view('dashboard.admin', compact(
-            'stats', 'chartLabels', 'chartData', 'recentActivity', 'activeAgents', 'alerts'
-        ));
     }
 
     private function agent()
@@ -106,12 +68,14 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
-        $upcomingAppointments = Appointment::where('agent_id', $user->id)
-            ->whereDate('date', '>=', now()->toDateString())
-            ->with('property', 'client')
-            ->orderBy('date')
-            ->limit(5)
-            ->get();
+        $upcomingAppointments = Appointment::whereHas('property', fn($q) =>
+            $q->where('user_id', $user->id)
+        )
+        ->whereDate('date', '>=', now()->toDateString())
+        ->with(['property', 'client'])
+        ->orderBy('date')
+        ->limit(5)
+        ->get();
 
         $recentMessages = Message::where('receiver_id', $user->id)
             ->with(['sender', 'property'])
@@ -122,7 +86,8 @@ class DashboardController extends Controller
         $stats = [
             'my_properties'   => $user->properties()->count(),
             'total_views'     => $user->properties()->sum('views_count'),
-            'appointments'    => Appointment::where('agent_id', $user->id)->count(),
+            'appointments'    => Appointment::whereHas('property', fn($q) =>
+                                    $q->where('user_id', $user->id))->count(),
             'unread_messages' => Message::where('receiver_id', $user->id)
                                     ->where('is_read', false)->count(),
         ];
@@ -160,7 +125,9 @@ class DashboardController extends Controller
             'viewed'       => count($viewedIds),
         ];
 
-        return view('dashboard.student', compact('favorites', 'myAppointments', 'recentlyViewed', 'stats'));
+        return view('dashboard.student', compact(
+            'favorites', 'myAppointments', 'recentlyViewed', 'stats'
+        ));
     }
 
     private function tenant()
@@ -191,6 +158,8 @@ class DashboardController extends Controller
             'viewed'       => count($viewedIds),
         ];
 
-        return view('dashboard.tenant', compact('favorites', 'myAppointments', 'recentlyViewed', 'stats'));
+        return view('dashboard.tenant', compact(
+            'favorites', 'myAppointments', 'recentlyViewed', 'stats'
+        ));
     }
 }
